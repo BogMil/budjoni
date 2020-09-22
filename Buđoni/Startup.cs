@@ -1,19 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Budjoni.DAL;
+using Budjoni.Data;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Buđoni.Data;
-using Buđoni.DAL;
-using Microsoft.EntityFrameworkCore;
 
-namespace Buđoni
+namespace Budjoni
 {
     public class Startup
     {
@@ -33,7 +27,7 @@ namespace Buđoni
             services.AddSingleton<WeatherForecastService>();
             services.AddDbContext<ApplicationDbContext>(options => {
                 options.UseSqlServer(Configuration.GetConnectionString("BudjoniContext"),
-                    b => b.MigrationsAssembly("Buđoni"));
+                    b => b.MigrationsAssembly("Budjoni"));
                 });
         }
 

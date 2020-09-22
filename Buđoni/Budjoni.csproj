@@ -5,15 +5,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MatBlazor" Version="2.7.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Tewr.Blazor.FileReader" Version="2.0.0.20242" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Buđoni.DAL\Buđoni.DAL.csproj" />
+    <ProjectReference Include="..\Buđoni.DAL\Budjoni.DAL.csproj" />
   </ItemGroup>
 
 </Project>

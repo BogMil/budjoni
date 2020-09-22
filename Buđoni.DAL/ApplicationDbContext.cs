@@ -1,7 +1,7 @@
-﻿using Buđoni.Data;
+﻿using Budjoni.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Buđoni.DAL
+namespace Budjoni.DAL
 {
     public class ApplicationDbContext:DbContext
     {

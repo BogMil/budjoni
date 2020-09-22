@@ -1,0 +1,144 @@
+﻿@page "/model/create"
+@using Budjoni.DAL
+@using Budjoni.DAL.Models
+@using Tewr.Blazor.FileReader
+
+@inject ApplicationDbContext Db
+
+
+
+<EditForm Model="@modelObuce" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <p>
+        <label>
+            <MatH6>
+                Naziv modela:
+                <InputText @bind-Value="@modelObuce.NazivModela" />
+            </MatH6>
+
+        </label>
+    </p>
+    <p>
+
+        <div class="mat-layout-grid">
+            <div class="mat-layout-grid-inner">
+                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4"></div>
+                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
+                    <MatCard class="demo-mat-card">
+                        <MatCardContent>
+                            <div class="demo-mat-card-content">
+                                <MatHeadline6 class="demo-mat-card-clean-margin">
+                                </MatHeadline6>
+                            </div>
+                        </MatCardContent>
+                        <MatCardActions>
+                            <MatButton>Dodaj sliku</MatButton>
+                        </MatCardActions>
+                    </MatCard>
+                </div>
+                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4"></div>
+
+                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4"></div>
+                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
+                    <MatCard class="demo-mat-card">
+                        <MatCardContent>
+                            <h4>
+                                Dodaj novu velicinu <button @onclick="OpenDialog">
+                                    <span class="oi oi-plus" aria-hidden="true"></span>
+                                </button>
+                            </h4>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>velicina</th>
+                                        <th>Stanje</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var velicinaModela in modelObuce.VelicineModela)
+                                    {
+                                        <tr>
+                                            <td>@velicinaModela.Velicina</td>
+                                            <td>
+                                                <MatTextField @bind-Value="@velicinaModela.KolicinaNaStanju"></MatTextField>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </MatCardContent>
+                    </MatCard>
+                </div>
+                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4"></div>
+
+            </div>
+
+
+        </div>
+
+    </p>
+
+    <button type="submit">Submit</button>
+
+    <MatDialog @bind-IsOpen="@dialogIsOpen">
+        <MatDialogContent>
+            <MatTextField @bind-Value="@novaVelicina" Dense="true" Label="velicina"></MatTextField>
+            <MatTextField @bind-Value="@novaKolicina"></MatTextField>
+        </MatDialogContent>
+        <MatDialogActions>
+            <MatButton OnClick="@(e => { dialogIsOpen = false; })">No Thanks</MatButton>
+            <MatButton OnClick="@DodajVelicinu">OK</MatButton>
+        </MatDialogActions>
+    </MatDialog>
+
+</EditForm>
+
+
+@code {
+
+    private ModelObuce modelObuce;
+    string novaVelicina = null;
+    int novaKolicina= 0;
+    bool dialogIsOpen = false;
+
+
+    private void HandleValidSubmit()
+    {
+    }
+
+
+    void DodajVelicinu()
+    {
+        modelObuce.VelicineModela.Add(new VelicinaModela(){Velicina = novaVelicina,KolicinaNaStanju = novaKolicina});
+        novaVelicina = null;
+        novaKolicina = 0;
+        dialogIsOpen = false;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Run(() =>
+        {
+            modelObuce = new ModelObuce
+            {
+                VelicineModela = new List<VelicinaModela>()
+            {
+                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "36"},
+                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "37"},
+                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "38"},
+                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "39"},
+                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "40"},
+                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "41"},
+                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "43"},
+                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "44"},
+                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "45"},
+                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "46"},
+
+                }
+            };
+        });
+    }
+
+}

@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Buđoni.Data
+namespace Budjoni.Data
 {
     public class WeatherForecastService
     {

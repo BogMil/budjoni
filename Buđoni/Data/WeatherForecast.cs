@@ -1,6 +1,6 @@
 using System;
 
-namespace Buđoni.Data
+namespace Budjoni.Data
 {
     public class WeatherForecast
     {

@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+using Budjoni.DAL.Models;
 
-namespace Buđoni.Data
+namespace Budjoni.DAL.Models
 {
     public class ModelObuce
     {
@@ -13,6 +12,28 @@ namespace Buđoni.Data
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string NazivModela{ get; set; }
-        public string Slika{ get; set; }
+        public byte[] SlikaByteArray { get; set; }
+        public ICollection<VelicinaModela> VelicineModela { get; set; }
+
+        public string GetImageSrc()
+        {
+            if (SlikaByteArray == null)
+                return "";
+            var base64 = Convert.ToBase64String(SlikaByteArray);
+            return $"data:image/gif;base64,{base64}";
+        }
+    }
+
+    public class VelicinaModela
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+        public string Velicina { get; set; }
+        public int KolicinaNaStanju { get; set; }
+
+        [ForeignKey("ModelObuce")]
+        public int IdModelaObuce { get; set; }
+        public ModelObuce ModelObuce { get; set; }
     }
 }

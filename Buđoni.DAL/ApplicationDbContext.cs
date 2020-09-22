@@ -9,5 +9,6 @@ namespace Budjoni.DAL
             :base(options){}
 
         public DbSet<ModelObuce> ModeliObuce { get; set; }
+        public DbSet<Narudzbina> Naruzbine { get; set; }
     }
 }

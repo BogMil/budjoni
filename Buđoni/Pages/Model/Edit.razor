@@ -1,4 +1,4 @@
-﻿@page "/model/create"
+﻿@page "/model/edit/{Id}"
 @using Budjoni.DAL
 @using Budjoni.DAL.Models
 @using BlazorInputFile
@@ -8,7 +8,7 @@
 
 
 
-<EditForm Model="@modelObuce" >
+<EditForm Model="@modelObuce">
 
     <p>
         <label>
@@ -53,15 +53,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var velicinaModela in modelObuce.VelicineModela)
+                                    @foreach (var velicinaModela in modelObuce.VelicineModela.OrderBy(s => s.Velicina))
                                     {
             <tr>
                 <td style="padding:0">@velicinaModela.Velicina</td>
                 <td style="padding:0">
                     <InputNumber @bind-Value="@velicinaModela.KolicinaNaStanju" />
                 </td>
-            </tr>
-}
+            </tr>}
                                 </tbody>
                             </table>
                         </MatCardContent>
@@ -92,85 +91,70 @@
 </EditForm>
 
 
-@code { private ModelObuce modelObuce;
-    string novaVelicina = null;
-    int novaKolicina = 0;
-    bool dialogIsOpen = false;
-    string imageUrl;
+@code { [Parameter]
+            public string Id { get; set; }
 
-    void OpenDialog()
-    {
-        dialogIsOpen = true;
-    }
+            private ModelObuce modelObuce = new ModelObuce { VelicineModela = new List<VelicinaModela>() };
+            string novaVelicina = null;
+            int novaKolicina = 0;
+            bool dialogIsOpen = false;
+            string imageUrl;
 
-    void DodajVelicinu()
-    {
-        modelObuce.VelicineModela.Add(new VelicinaModela() { Velicina = novaVelicina, KolicinaNaStanju = novaKolicina });
-        novaVelicina = null;
-        novaKolicina = 0;
-        dialogIsOpen = false;
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        await Task.Run(() =>
-        {
-            modelObuce = new ModelObuce
+            void OpenDialog()
             {
-                VelicineModela = new List<VelicinaModela>()
-                    {
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "36"},
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "37"},
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "38"},
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "39"},
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "40"},
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "41"},
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "43"},
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "44"},
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "45"},
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "46"},
-
-                                        }
-            };
-        });
-    }
-
-    IFileListEntry file;
-
-    async void HandleFileSelected(IFileListEntry[] files)
-    {
-        file = files.FirstOrDefault();
-        modelObuce.SlikaByteArray = await StreamToByteArray(file.Data);
-        imageUrl = modelObuce.GetImageSrc();
-        StateHasChanged();
-    }
-
-    public async Task<byte[]> StreamToByteArray(Stream input)
-    {
-        try
-        {
-            byte[] buffer = new byte[16 * 1024];
-            using (MemoryStream ms = new MemoryStream())
-            {
-                int read;
-                while ((read = await input.ReadAsync(buffer, 0, buffer.Length)) > 0)
-                {
-                    ms.Write(buffer, 0, read);
-                }
-                return ms.ToArray();
+                dialogIsOpen = true;
             }
-        }
-        catch (Exception e)
-        {
-            var x = e.Message;
-            return null;
-        }
-    }
 
-    void Submit()
-    {
-        modelObuce.VelicineModela = modelObuce.VelicineModela.Where(s => s.KolicinaNaStanju > 0).ToList();
-        Db.ModeliObuce.Add(modelObuce);
-        Db.SaveChanges();
-        NavigationManager.NavigateTo("/model");
-    } }
+            void DodajVelicinu()
+            {
+                modelObuce.VelicineModela.Add(new VelicinaModela() { Velicina = novaVelicina, KolicinaNaStanju = novaKolicina });
+                novaVelicina = null;
+                novaKolicina = 0;
+                dialogIsOpen = false;
+            }
+
+            protected override async Task OnInitializedAsync()
+            {
+                modelObuce = await Db.ModeliObuce.FindAsync(int.Parse(Id));
+                imageUrl = modelObuce.GetImageSrc();
+                StateHasChanged();
+            }
+
+            IFileListEntry file;
+
+            async void HandleFileSelected(IFileListEntry[] files)
+            {
+                file = files.FirstOrDefault();
+                modelObuce.SlikaByteArray = await StreamToByteArray(file.Data);
+                imageUrl = modelObuce.GetImageSrc();
+                StateHasChanged();
+            }
+
+            public async Task<byte[]> StreamToByteArray(Stream input)
+            {
+                try
+                {
+                    byte[] buffer = new byte[16 * 1024];
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        int read;
+                        while ((read = await input.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                        {
+                            ms.Write(buffer, 0, read);
+                        }
+                        return ms.ToArray();
+                    }
+                }
+                catch (Exception e)
+                {
+                    var x = e.Message;
+                    return null;
+                }
+            }
+
+            void Submit()
+            {
+                Db.ModeliObuce.Update(modelObuce);
+                Db.SaveChanges();
+                NavigationManager.NavigateTo("/model");
+            } }

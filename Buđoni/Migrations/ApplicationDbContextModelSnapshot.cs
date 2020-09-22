@@ -19,49 +19,6 @@ namespace Budjoni.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Budjoni.DAL.Models.BojaModela", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("IdModela")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("SlikaByteArray")
-                        .HasColumnType("varbinary(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdModela");
-
-                    b.ToTable("BojaModela");
-                });
-
-            modelBuilder.Entity("Budjoni.DAL.Models.BrojBojeModela", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("IdBojeModela")
-                        .HasColumnType("int");
-
-                    b.Property<string>("KolicinaNaStanju")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Velicina")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdBojeModela");
-
-                    b.ToTable("BrojBojeModela");
-                });
-
             modelBuilder.Entity("Budjoni.DAL.Models.ModelObuce", b =>
                 {
                     b.Property<int>("Id")
@@ -72,25 +29,42 @@ namespace Budjoni.Migrations
                     b.Property<string>("NazivModela")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<byte[]>("SlikaByteArray")
+                        .HasColumnType("varbinary(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("ModeliObuce");
                 });
 
-            modelBuilder.Entity("Budjoni.DAL.Models.BojaModela", b =>
+            modelBuilder.Entity("Budjoni.DAL.Models.VelicinaModela", b =>
                 {
-                    b.HasOne("Budjoni.DAL.Models.ModelObuce", "ModelObuce")
-                        .WithMany("BojeModela")
-                        .HasForeignKey("IdModela")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("IdModelaObuce")
+                        .HasColumnType("int");
+
+                    b.Property<int>("KolicinaNaStanju")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Velicina")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdModelaObuce");
+
+                    b.ToTable("VelicinaModela");
                 });
 
-            modelBuilder.Entity("Budjoni.DAL.Models.BrojBojeModela", b =>
+            modelBuilder.Entity("Budjoni.DAL.Models.VelicinaModela", b =>
                 {
-                    b.HasOne("Budjoni.DAL.Models.BojaModela", "BojaModela")
-                        .WithMany("BrojeviBojeModela")
-                        .HasForeignKey("IdBojeModela")
+                    b.HasOne("Budjoni.DAL.Models.ModelObuce", "ModelObuce")
+                        .WithMany("VelicineModela")
+                        .HasForeignKey("IdModelaObuce")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

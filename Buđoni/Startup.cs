@@ -28,6 +28,7 @@ namespace Budjoni
             services.AddDbContext<ApplicationDbContext>(options => {
                 options.UseSqlServer(Configuration.GetConnectionString("BudjoniContext"),
                     b => b.MigrationsAssembly("Budjoni"));
+                options.UseLazyLoadingProxies();
                 });
         }
 

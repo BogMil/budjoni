@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Budjoni.DAL.Models;
+using System.Text;
 
 namespace Budjoni.DAL.Models
 {
-    public class ModelObuce
+    public class Narudzbina
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public string NazivModela{ get; set; }
+        public string NazivModela { get; set; }
         public byte[] SlikaByteArray { get; set; }
         public virtual ICollection<VelicinaModela> VelicineModela { get; set; }
 
@@ -22,18 +22,5 @@ namespace Budjoni.DAL.Models
             var base64 = Convert.ToBase64String(SlikaByteArray);
             return $"data:image/gif;base64,{base64}";
         }
-    }
-
-    public class VelicinaModela
-    {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
-        public string Velicina { get; set; }
-        public int KolicinaNaStanju { get; set; }
-
-        [ForeignKey("ModelObuce")]
-        public int IdModelaObuce { get; set; }
-        public virtual ModelObuce ModelObuce { get; set; }
     }
 }

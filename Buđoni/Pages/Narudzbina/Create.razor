@@ -1,0 +1,183 @@
+﻿@page "/narudzbina/create"
+@using Budjoni.DAL
+@using Budjoni.DAL.Models
+@using BlazorInputFile
+@using System.IO
+@using Budjoni.Services
+@inject NavigationManager NavigationManager
+@inject ApplicationDbContext Db
+@inject ModelObuceService ModelObuceService
+@inject BexAddressService BexAddressService
+
+<EditForm Model="@narudzbina">
+
+    <p>
+        <label>
+
+
+
+
+        </label>
+    </p>
+    <div class="mat-layout-grid" style="padding:2px 10px ">
+        <div class="mat-layout-grid-inner">
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-3">
+                <label>
+                    Prezime:
+                    <InputText Style="width:100%" @bind-Value="@narudzbina.Prezime" />
+                </label>
+            </div>
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-3">
+                <label>
+                    Ime:
+                    <InputText Style="width:100%" @bind-Value="@narudzbina.Ime" />
+                </label>
+            </div>
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-3">
+                <label>
+                    Telefon:
+                    <InputText Style="width:100%" @bind-Value="@narudzbina.KontaktTelefon" />
+                </label>
+            </div>
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-3">
+                <label>
+                    DatumSlanja:
+                    <MatDatePicker @bind-Value="@narudzbina.DatumSlanja" Format="dd-MM-yyyy"></MatDatePicker>
+                </label>
+            </div>
+
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
+                <div>
+                    mesto : <b>@odabranoMesto</b>
+                </div>
+                <label>
+                    Pretrazi mesto
+                    <input style="width:100%" @oninput="@OnMestoSearchTextChanged" value="@mestoSearchText" />
+                </label>
+                <div style="max-height: 300px;overflow-y: auto">
+                    @foreach (var mesto in pretrazenaMesta)
+                    {
+                        <div><button @onclick="()=>IzaberiMesto(mesto)">@mesto.TextZaPrikaz</button></div>
+                    }
+                </div>
+            </div>
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
+                <div>
+                    ulica : <b>@odabranaUlica</b>
+                </div>
+                <label>
+                    Pretrazi ulicu
+                    <input style="width:100%" @oninput="@OnUlicaSearchTextChanged" value="@ulicaSearchText" />
+                </label>
+                <div style="max-height: 300px;overflow-y: auto">
+                    @foreach (var ulica in pretrazeneUlice)
+                    {
+                        <div><button @onclick="()=>IzaberiUlicu(ulica)">@ulica.Naziv</button></div>
+                    }
+                </div>
+            </div>
+
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                <label>
+                    Kucni broj:
+                    <InputText Style="width:100px" @bind-Value="@narudzbina.KucniBroj" />
+                </label>
+                <label>
+                    Ulaz ili stan:
+                    <InputText Style="width:100px" @bind-Value="@narudzbina.UlazIliStan" />
+                </label>
+            </div>
+
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-3">
+            <MatSelect Label="Nalog za adresnicu" @bind-Value="@narudzbina.IdNalogaSaKogSeSalje">
+                <MatOption TValue="int" Value="0">---</MatOption>
+                <MatOption TValue="int" Value="1">Bogisa</MatOption>
+                <MatOption TValue="int" Value="2">Dalibor</MatOption>
+                <MatOption TValue="int" Value="3">Mira</MatOption>
+            </MatSelect>
+            @*Vrsta robe*@
+        </div>
+
+
+
+
+        <button @onclick="Submit">Sacuvaj</button>
+
+    </div>
+</EditForm>
+
+
+@code {
+    private Narudzbina narudzbina;
+    private List<Mesto> _mesta = new List<Mesto>();
+    List<Mesto> pretrazenaMesta = new List<Mesto>();
+    string mestoSearchText = "";
+    string odabranoMesto = "";
+
+    private List<Ulica> _ulice = new List<Ulica>();
+    List<Ulica> pretrazeneUlice = new List<Ulica>();
+    string ulicaSearchText;
+    string odabranaUlica;
+
+    private Task OnMestoSearchTextChanged(ChangeEventArgs e)
+    {
+        mestoSearchText = e.Value.ToString();
+        if (mestoSearchText.Length < 2)
+        {
+            StateHasChanged();
+            return Task.CompletedTask;
+        }
+
+
+        pretrazenaMesta = _mesta.Where(s => s.TextZaPrikaz.ToLower().Contains(mestoSearchText.ToLower())).ToList();
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnUlicaSearchTextChanged(ChangeEventArgs e)
+    {
+        ulicaSearchText = e.Value.ToString();
+        if (ulicaSearchText.Length == 0)
+        {
+            pretrazeneUlice = _ulice;
+            StateHasChanged();
+            return Task.CompletedTask;
+        }
+
+
+        pretrazeneUlice = _ulice.Where(s => s.Naziv.ToLower().Contains(ulicaSearchText.ToLower())).ToList();
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        narudzbina = new Narudzbina() { IdNalogaSaKogSeSalje = 1 };
+        _mesta = await BexAddressService.GetMestaAsync();
+    }
+
+    async void IzaberiMesto(Mesto mesto)
+    {
+        narudzbina.IdMesta = mesto.IdMesta;
+        odabranoMesto = mesto.TextZaPrikaz;
+        odabranaUlica = null;
+        _ulice = await BexAddressService.GetUliceAsync(mesto.IdMesta);
+        pretrazeneUlice = _ulice;
+        StateHasChanged();
+    }
+
+    void IzaberiUlicu(Ulica ulica)
+    {
+        narudzbina.IdUlice = ulica.Id;
+        odabranaUlica = ulica.Naziv;
+        StateHasChanged();
+    }
+
+    void Submit()
+    {
+        //ModelObuceService.Create(narudzbina);
+        //NavigationManager.NavigateTo("/narudzbine");
+    }
+
+}

@@ -5,10 +5,11 @@
 @using System.IO
 @inject NavigationManager NavigationManager
 @inject ApplicationDbContext Db
+@inject ModelObuceService ModelObuceService
 
 
 
-<EditForm Model="@modelObuce" >
+<EditForm Model="@modelObuce">
 
     <p>
         <label>
@@ -31,7 +32,7 @@
                         </MatCardContent>
                         <MatCardActions>
 
-                            <InputFile OnChange="HandleFileSelected" />
+                            <InputFile OnChange="HandleFileSelected"  />
                         </MatCardActions>
                     </MatCard>
                 </div>
@@ -55,13 +56,13 @@
                                 <tbody>
                                     @foreach (var velicinaModela in modelObuce.VelicineModela)
                                     {
-            <tr>
-                <td style="padding:0">@velicinaModela.Velicina</td>
-                <td style="padding:0">
-                    <InputNumber @bind-Value="@velicinaModela.KolicinaNaStanju" />
-                </td>
-            </tr>
-}
+                                        <tr>
+                                            <td style="padding:0">@velicinaModela.Velicina</td>
+                                            <td style="padding:0">
+                                                <InputNumber @bind-Value="@velicinaModela.KolicinaNaStanju" />
+                                            </td>
+                                        </tr>
+                                    }
                                 </tbody>
                             </table>
                         </MatCardContent>
@@ -130,7 +131,7 @@
                 new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "45"},
                 new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "46"},
 
-                                        }
+                                                }
             };
         });
     }
@@ -150,15 +151,13 @@
         try
         {
             byte[] buffer = new byte[16 * 1024];
-            using (MemoryStream ms = new MemoryStream())
+            await using MemoryStream ms = new MemoryStream();
+            int read;
+            while ((read = await input.ReadAsync(buffer, 0, buffer.Length)) > 0)
             {
-                int read;
-                while ((read = await input.ReadAsync(buffer, 0, buffer.Length)) > 0)
-                {
-                    ms.Write(buffer, 0, read);
-                }
-                return ms.ToArray();
+                ms.Write(buffer, 0, read);
             }
+            return ms.ToArray();
         }
         catch (Exception e)
         {
@@ -169,8 +168,6 @@
 
     void Submit()
     {
-        modelObuce.VelicineModela = modelObuce.VelicineModela.Where(s => s.KolicinaNaStanju > 0).ToList();
-        Db.ModeliObuce.Add(modelObuce);
-        Db.SaveChanges();
+        ModelObuceService.Create(modelObuce);
         NavigationManager.NavigateTo("/model");
     } }

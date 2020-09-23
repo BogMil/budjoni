@@ -1,5 +1,6 @@
 using Budjoni.DAL;
 using Budjoni.Data;
+using Budjoni.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -25,11 +26,8 @@ namespace Budjoni
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();
-            services.AddDbContext<ApplicationDbContext>(options => {
-                options.UseSqlServer(Configuration.GetConnectionString("BudjoniContext"),
-                    b => b.MigrationsAssembly("Budjoni"));
-                options.UseLazyLoadingProxies();
-                });
+            services.AddTransient<BexAddressService>();
+            services.AddDAL(Configuration.GetConnectionString("BudjoniContext"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

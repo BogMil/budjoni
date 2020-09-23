@@ -1,94 +1,87 @@
 ﻿@page "/narudzbine"
 @using Budjoni.DAL
 @using Budjoni.DAL.Models
+@using Budjoni.Services
 @inject IJSRuntime JsRuntime
 @inject ApplicationDbContext Db
+@inject BexAddressService BexAddressService
 
-<h4>
-    Modeli buđonija <button>
-        <NavLink class="nav-link" href="model/create">
+<h6>
+    Narudžbine <button>
+        <NavLink class="nav-link" href="narudzbina/create">
             <span class="oi oi-plus" aria-hidden="true"></span>
         </NavLink>
     </button>
-</h4>
+</h6>
 
 
 
-@if (modeliObuce == null)
+@if (narudzbine == null)
 {
 <p><em>Loading...</em></p> }
 else
 {
-<table class="table">
-    <thead>
-        <tr>
-            <th>Naziv modela</th>
-            <th>Stanje</th>
-            <th>Slika</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var modelObuce in modeliObuce)
-        {
-<tr>
-    <td> @modelObuce.NazivModela</td>
-    <td>
-        <div>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="padding:0px;width:100px">velicina</th>
-                        <th style="padding:0px;width:100px">stanje</th>
-                    </tr>
-                </thead>
 
-                @foreach (var velicina in modelObuce.VelicineModela.OrderBy(s => s.Velicina))
-                {
-<tr>
-    <td style="padding:0px">@velicina.Velicina</td>
-    <td style="padding:0px">@velicina.KolicinaNaStanju</td>
-</tr>}
-            </table>
-        </div>
-    </td>
-    <td> <img src="@modelObuce.GetImageSrc()" style="width:150px" /></td>
-    <td>
-        <button>
-            <NavLink class="nav-link" href="@{"model/edit/"+modelObuce.Id}">
-                <span class="oi oi-pencil" aria-hidden="true"></span>
-            </NavLink>
-        </button>
+    @foreach (var narudzbina in narudzbine)
+    {
+        <MatCard class="demo-mat-card">
+            <MatCardContent>
+                <div class="demo-mat-card-content">
+                    <MatSubtitle2 class="demo-mat-card-clean-margin">
+                        <div class="mat-layout-grid" style="padding:2px 10px ">
+                            <div class="mat-layout-grid-inner">
+                                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">@narudzbina.Prezime @narudzbina.Ime - @narudzbina.KontaktTelefon</div>
+                                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">@narudzbina.AdresaZaPrikaz</div>
+                                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4" style="text-align: right"><div><b>SLANJE : </b>@narudzbina.DatumSlanja.ToString("dd-MM-yyyy")</div></div>
+                            </div>
+                        </div>
 
-        <button @onclick="()=>IzbrisiModel(modelObuce.Id)">
-            <span class="oi oi-x" aria-hidden="true"></span>
-        </button>
-    </td>
-</tr>
+
+                    </MatSubtitle2>
+                </div>
+                <MatBody2 class="demo-mat-card-content demo-mat-card-clean-margin">
+                    Visit ten places on our planet that are undergoing the biggest changes today.
+                </MatBody2>
+            </MatCardContent>
+        </MatCard>
+    }
 }
-    </tbody>
-</table>}
-
-@code { private List<ModelObuce> modeliObuce;
+@code { 
+    private List<Narudzbina> narudzbine;
 
     protected override async Task OnInitializedAsync()
     {
         await Task.Run(() =>
         {
-            modeliObuce = Db.ModeliObuce.ToList();
+            //narudzbine = Db.Naruzbine.ToList();
+            narudzbine=new List<Narudzbina>(){new Narudzbina()
+            {
+                KucniBroj = "34",
+                DatumSlanja = DateTime.Now,
+                NalogSaKogSeSalje = new Nalog()
+                {
+                    Password = "123456",
+                    PrezimeIme = "Bogisa",
+                    Username = "bogisab"
+                },
+                Prezime = "neko ime",
+                Ime = "neko prezime",
+                KontaktTelefon = "0651164545"
+                
+            }};
         });
     }
 
     async void IzbrisiModel(int id)
     {
-        bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Miro, da li si sigurna da hoces da obrises budjonija?");
+        //bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Miro, da li si sigurna da hoces da obrises budjonija?");
 
-        if (!confirmed)
-            return;
+        //if (!confirmed)
+        //    return;
 
-        var modelObuce = Db.ModeliObuce.Find(id);
-        Db.ModeliObuce.Remove(modelObuce);
-        Db.SaveChanges();
-        modeliObuce = Db.ModeliObuce.ToList();
-        StateHasChanged();
+        //var modelObuce = Db.ModeliObuce.Find(id);
+        //Db.ModeliObuce.Remove(modelObuce);
+        //Db.SaveChanges();
+        //narudzbine = Db.ModeliObuce.ToList();
+        //StateHasChanged();
     } }

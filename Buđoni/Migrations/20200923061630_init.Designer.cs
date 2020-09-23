@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Budjoni.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200922173344_init")]
+    [Migration("20200923061630_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -20,6 +20,26 @@ namespace Budjoni.Migrations
                 .HasAnnotation("ProductVersion", "3.1.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("Budjoni.DAL.Models.DetaljiNarudzbine", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("IdNarudzbine")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Kolicina")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdNarudzbine");
+
+                    b.ToTable("DetaljiNarudzbine");
+                });
 
             modelBuilder.Entity("Budjoni.DAL.Models.ModelObuce", b =>
                 {
@@ -37,6 +57,45 @@ namespace Budjoni.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ModeliObuce");
+                });
+
+            modelBuilder.Entity("Budjoni.DAL.Models.Narudzbina", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Brojulice")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DatumSlanja")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("IdMesta")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdUlice")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Ime")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("KontaktTelefon")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Prezime")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("SlikaByteArray")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<DateTime>("TimestampKreiranja")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Naruzbine");
                 });
 
             modelBuilder.Entity("Budjoni.DAL.Models.VelicinaModela", b =>
@@ -60,6 +119,15 @@ namespace Budjoni.Migrations
                     b.HasIndex("IdModelaObuce");
 
                     b.ToTable("VelicinaModela");
+                });
+
+            modelBuilder.Entity("Budjoni.DAL.Models.DetaljiNarudzbine", b =>
+                {
+                    b.HasOne("Budjoni.DAL.Models.Narudzbina", "Narudzbina")
+                        .WithMany("VelicineModela")
+                        .HasForeignKey("IdNarudzbine")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Budjoni.DAL.Models.VelicinaModela", b =>

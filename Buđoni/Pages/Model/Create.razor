@@ -9,88 +9,78 @@
 
 
 
-<EditForm Model="@modelObuce">
-
-    <p>
-        <label>
-            <MatH6>
-                Naziv modela:
-                <InputText Style="width:100%" @bind-Value="@modelObuce.NazivModela" />
-            </MatH6>
-
-        </label>
-    </p>
-    <p>
-        <div class="mat-layout-grid" style="padding:0">
-            <div class="mat-layout-grid-inner">
-                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
-                    <MatCard class="demo-mat-card">
-                        <MatCardContent>
-                            <div class="demo-mat-card-content">
-                                <img src="@imageUrl" />
-                            </div>
-                        </MatCardContent>
-                        <MatCardActions>
-
-                            <InputFile OnChange="HandleFileSelected"  />
-                        </MatCardActions>
-                    </MatCard>
-                </div>
-                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6"></div>
-
-                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
-                    <MatCard class="demo-mat-card">
-                        <MatCardContent>
-                            <h4>
-                                Dodaj novu velicinu <button @onclick="OpenDialog">
-                                    <span class="oi oi-plus" aria-hidden="true"></span>
-                                </button>
-                            </h4>
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>velicina</th>
-                                        <th>Stanje</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var velicinaModela in modelObuce.VelicineModela)
-                                    {
-                                        <tr>
-                                            <td style="padding:0">@velicinaModela.Velicina</td>
-                                            <td style="padding:0">
-                                                <InputNumber @bind-Value="@velicinaModela.KolicinaNaStanju" />
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </MatCardContent>
-                    </MatCard>
-                </div>
-                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6"></div>
-
-            </div>
 
 
+<div class="mat-layout-grid" style="padding:0">
+    <div class="mat-layout-grid-inner">
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
+            <MatStringField Label="Naziv modela" Style="width:100%" @bind-Value="@modelObuce.NazivModela" />
+            <MatStringField Label="Sifra" @bind-Value="@modelObuce.Sifra" />
+            <MatCard class="demo-mat-card">
+                @if (modelObuce.SlikaByteArray != null)
+                {
+                    <MatCardContent>
+                        <div class="demo-mat-card-content">
+                            <img src="@imageUrl" />
+                        </div>
+                    </MatCardContent>
+                }
+                <MatCardActions>
+
+                    <InputFile OnChange="HandleFileSelected" />
+                </MatCardActions>
+            </MatCard>
         </div>
 
-    </p>
 
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
+            <MatCard class="demo-mat-card">
+                <MatCardContent>
+                    <h4>
+                        Dodaj novu velicinu <button @onclick="OpenDialog">
+                            <span class="oi oi-plus" aria-hidden="true"></span>
+                        </button>
+                    </h4>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>velicina</th>
+                                <th>Stanje</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var velicinaModela in modelObuce.VelicineModela)
+                            {
+                                <tr>
+                                    <td style="padding:0">@velicinaModela.Velicina</td>
+                                    <td style="padding:0">
+                                        <MatTextField style="width:100%" Label="Otkup" @bind-Value="@velicinaModela.KolicinaNaStanju" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </MatCardContent>
+            </MatCard>
+        </div>
+    </div>
     <button @onclick="Submit">Sacuvaj</button>
 
-    <MatDialog @bind-IsOpen="@dialogIsOpen">
-        <MatDialogContent>
-            <MatTextField @bind-Value="@novaVelicina" Dense="true" Label="velicina"></MatTextField>
-            <MatTextField @bind-Value="@novaKolicina"></MatTextField>
-        </MatDialogContent>
-        <MatDialogActions>
-            <MatButton OnClick="@(e => { dialogIsOpen = false; })">No Thanks</MatButton>
-            <MatButton OnClick="@DodajVelicinu">OK</MatButton>
-        </MatDialogActions>
-    </MatDialog>
+</div>
 
-</EditForm>
+
+
+<MatDialog @bind-IsOpen="@dialogIsOpen">
+    <MatDialogContent>
+        <MatTextField @bind-Value="@novaVelicina" Dense="true" Label="velicina"></MatTextField>
+        <MatTextField @bind-Value="@novaKolicina"></MatTextField>
+    </MatDialogContent>
+    <MatDialogActions>
+        <MatButton OnClick="@(e => { dialogIsOpen = false; })">No Thanks</MatButton>
+        <MatButton OnClick="@DodajVelicinu">OK</MatButton>
+    </MatDialogActions>
+</MatDialog>
+
 
 
 @code { private ModelObuce modelObuce;
@@ -131,7 +121,7 @@
                 new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "45"},
                 new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "46"},
 
-                                                }
+                                                                            }
             };
         });
     }

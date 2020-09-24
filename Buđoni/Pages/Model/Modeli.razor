@@ -16,58 +16,59 @@
 
 @if (modeliObuce == null)
 {
-<p><em>Loading...</em></p> }
+    <p><em>Loading...</em></p> }
 else
 {
-<table class="table">
-    <thead>
-        <tr>
-            <th>Naziv modela</th>
-            <th>Stanje</th>
-            <th>Slika</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var modelObuce in modeliObuce)
-        {
-<tr>
-    <td> @modelObuce.NazivModela</td>
-    <td>
-        <div>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="padding:0px;width:100px">velicina</th>
-                        <th style="padding:0px;width:100px">stanje</th>
-                    </tr>
-                </thead>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Naziv modela</th>
+                <th>Stanje</th>
+                <th>Slika</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var modelObuce in modeliObuce)
+            {
+                <tr>
+                    <td> @modelObuce.NazivModela</td>
+                    <td>
+                        <div>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th style="padding:0px;width:100px">velicina</th>
+                                        <th style="padding:0px;width:100px">stanje</th>
+                                    </tr>
+                                </thead>
 
-                @foreach (var velicina in modelObuce.VelicineModela.OrderBy(s => s.Velicina))
-                {
-<tr>
-    <td style="padding:0px">@velicina.Velicina</td>
-    <td style="padding:0px">@velicina.KolicinaNaStanju</td>
-</tr>}
-            </table>
-        </div>
-    </td>
-    <td> <img src="@modelObuce.GetImageSrc()" style="width:150px" /></td>
-    <td>
-        <button>
-            <NavLink class="nav-link" href="@{"model/edit/"+modelObuce.Id}">
-                <span class="oi oi-pencil" aria-hidden="true"></span>
-            </NavLink>
-        </button>
-
-        <button @onclick="()=>IzbrisiModel(modelObuce.Id)">
-            <span class="oi oi-x" aria-hidden="true"></span>
-        </button>
-    </td>
-</tr>
+                                @foreach (var velicina in modelObuce.VelicineModela.OrderBy(s => s.Velicina))
+                                {
+                                    <tr>
+                                        <td style="padding:0px">@velicina.Velicina</td>
+                                        <td style="padding:0px">@velicina.KolicinaNaStanju</td>
+                                    </tr>
 }
-    </tbody>
-</table>}
+                            </table>
+                        </div>
+                    </td>
+                    <td> <img src="@modelObuce.GetImageSrc()" style="width:150px" /></td>
+                    <td>
+                        <button>
+                            <NavLink class="nav-link" href="@{"model/edit/"+modelObuce.Id}">
+                                <span class="oi oi-pencil" aria-hidden="true"></span>
+                            </NavLink>
+                        </button>
+
+                        <button @onclick="()=>IzbrisiModel(modelObuce.Id)">
+                            <span class="oi oi-x" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>}
 
 @code { private List<ModelObuce> modeliObuce;
 

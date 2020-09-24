@@ -14,6 +14,7 @@ namespace Budjoni.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     NazivModela = table.Column<string>(nullable: true),
+                    Sifra = table.Column<string>(nullable: true),
                     SlikaByteArray = table.Column<byte[]>(nullable: true)
                 },
                 constraints: table =>
@@ -31,11 +32,17 @@ namespace Budjoni.Migrations
                     Prezime = table.Column<string>(nullable: true),
                     IdMesta = table.Column<int>(nullable: false),
                     IdUlice = table.Column<int>(nullable: false),
-                    Brojulice = table.Column<string>(nullable: true),
+                    KucniBroj = table.Column<string>(nullable: true),
+                    UlazIliStan = table.Column<string>(nullable: true),
+                    AdresaZaPrikaz = table.Column<string>(nullable: true),
                     KontaktTelefon = table.Column<string>(nullable: true),
                     TimestampKreiranja = table.Column<DateTime>(nullable: false),
                     DatumSlanja = table.Column<DateTime>(nullable: false),
-                    SlikaByteArray = table.Column<byte[]>(nullable: true)
+                    Otkup = table.Column<int>(nullable: false),
+                    IdVrsteRobe = table.Column<int>(nullable: false),
+                    ShipmentCategory = table.Column<int>(nullable: false),
+                    IdNalogaSaKogSeSalje = table.Column<int>(nullable: false),
+                    NalogSaKogSeSalje = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -70,11 +77,18 @@ namespace Budjoni.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Kolicina = table.Column<int>(nullable: false),
-                    IdNarudzbine = table.Column<int>(nullable: false)
+                    IdNarudzbine = table.Column<int>(nullable: false),
+                    IdModelaObuce = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DetaljiNarudzbine", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DetaljiNarudzbine_ModeliObuce_IdModelaObuce",
+                        column: x => x.IdModelaObuce,
+                        principalTable: "ModeliObuce",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_DetaljiNarudzbine_Naruzbine_IdNarudzbine",
                         column: x => x.IdNarudzbine,
@@ -82,6 +96,11 @@ namespace Budjoni.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DetaljiNarudzbine_IdModelaObuce",
+                table: "DetaljiNarudzbine",
+                column: "IdModelaObuce");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DetaljiNarudzbine_IdNarudzbine",

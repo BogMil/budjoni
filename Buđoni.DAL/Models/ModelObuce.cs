@@ -13,6 +13,7 @@ namespace Budjoni.DAL.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string NazivModela{ get; set; }
+        public string Sifra{ get; set; }
         public byte[] SlikaByteArray { get; set; }
         public virtual ICollection<VelicinaModela> VelicineModela { get; set; }
 

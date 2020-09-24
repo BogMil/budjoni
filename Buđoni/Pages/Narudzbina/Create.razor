@@ -4,109 +4,172 @@
 @using BlazorInputFile
 @using System.IO
 @using Budjoni.Services
+@using Budjoni.Data
 @inject NavigationManager NavigationManager
 @inject ApplicationDbContext Db
 @inject ModelObuceService ModelObuceService
 @inject BexAddressService BexAddressService
+@inject IJSRuntime JS
 
-<EditForm Model="@narudzbina">
-
-    <p>
-        <label>
-
-
-
-
-        </label>
-    </p>
+<div>
     <div class="mat-layout-grid" style="padding:2px 10px ">
         <div class="mat-layout-grid-inner">
             <div class="mat-layout-grid-cell mat-layout-grid-cell-span-3">
-                <label>
-                    Prezime:
-                    <InputText Style="width:100%" @bind-Value="@narudzbina.Prezime" />
-                </label>
+                <MatStringField Label="Prezime" Style="width:100%" @bind-Value="@narudzbina.Prezime" />
             </div>
             <div class="mat-layout-grid-cell mat-layout-grid-cell-span-3">
-                <label>
-                    Ime:
-                    <InputText Style="width:100%" @bind-Value="@narudzbina.Ime" />
-                </label>
+                <MatStringField Label="Ime" Style="width:100%" @bind-Value="@narudzbina.Ime" />
             </div>
             <div class="mat-layout-grid-cell mat-layout-grid-cell-span-3">
-                <label>
-                    Telefon:
-                    <InputText Style="width:100%" @bind-Value="@narudzbina.KontaktTelefon" />
-                </label>
+                <MatStringField Label="Telefon" Style="width:100%" @bind-Value="@narudzbina.KontaktTelefon" />
             </div>
             <div class="mat-layout-grid-cell mat-layout-grid-cell-span-3">
-                <label>
-                    DatumSlanja:
-                    <MatDatePicker @bind-Value="@narudzbina.DatumSlanja" Format="dd-MM-yyyy"></MatDatePicker>
-                </label>
+                <MatDatePicker Label="DatumSlanja" @bind-Value="@narudzbina.DatumSlanja" Format="dd-MM-yyyy" />
             </div>
+        </div>
+        <div class="mat-layout-grid-inner">
 
             <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
-                <div>
-                    mesto : <b>@odabranoMesto</b>
-                </div>
-                <label>
-                    Pretrazi mesto
-                    <input style="width:100%" @oninput="@OnMestoSearchTextChanged" value="@mestoSearchText" />
-                </label>
+                <MatStringField Label="mesto" Disabled Style="width:100%" @bind-Value="@odabranoMesto" />
+                <MatStringField Label="Pretrazi mesto" style="width:100%" OnInput="OnMestoSearchTextChanged" @bind-Value="@mestoSearchText" />
                 <div style="max-height: 300px;overflow-y: auto">
                     @foreach (var mesto in pretrazenaMesta)
                     {
-                        <div><button @onclick="()=>IzaberiMesto(mesto)">@mesto.TextZaPrikaz</button></div>
+                        <div><MatButton OnClick="@(()=> IzaberiMestoAsync(mesto))">@mesto.TextZaPrikaz</MatButton></div>
                     }
                 </div>
             </div>
             <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
-                <div>
-                    ulica : <b>@odabranaUlica</b>
-                </div>
-                <label>
-                    Pretrazi ulicu
-                    <input style="width:100%" @oninput="@OnUlicaSearchTextChanged" value="@ulicaSearchText" />
-                </label>
+                <MatStringField Label="ulica" Disabled Style="width:100%" @bind-Value="@odabranaUlica" />
+                <MatStringField Label="Pretrazi ulicu" Style="width:100%" OnInput="OnUlicaSearchTextChanged" @bind-Value="@ulicaSearchText" />
                 <div style="max-height: 300px;overflow-y: auto">
                     @foreach (var ulica in pretrazeneUlice)
                     {
-                        <div><button @onclick="()=>IzaberiUlicu(ulica)">@ulica.Naziv</button></div>
+                        <div><MatButton OnClick="@(()=>IzaberiUlicu(ulica))">@ulica.Naziv</MatButton></div>
                     }
                 </div>
             </div>
-
-            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
-                <label>
-                    Kucni broj:
-                    <InputText Style="width:100px" @bind-Value="@narudzbina.KucniBroj" />
-                </label>
-                <label>
-                    Ulaz ili stan:
-                    <InputText Style="width:100px" @bind-Value="@narudzbina.UlazIliStan" />
-                </label>
+        </div>
+        <div class="mat-layout-grid-inner">
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-2">
+                <MatStringField Label="Kucni broj" Style="width:100%" @bind-Value="@narudzbina.KucniBroj" />
             </div>
-
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-2">
+                <MatStringField Label="ulaz/stan" Style="width:100%" @bind-Value="@narudzbina.UlazIliStan" />
+            </div>
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
+                <MatStringField style="width:100%" Label="Napomena za adresnicu" @bind-Value="@narudzbina.KucniBroj" />
+            </div>
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
+                <MatStringField style="width:100%" Label="Napomena kuriru" @bind-Value="@narudzbina.UlazIliStan" />
+            </div>
         </div>
-        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-3">
-            <MatSelect Label="Nalog za adresnicu" @bind-Value="@narudzbina.IdNalogaSaKogSeSalje">
-                <MatOption TValue="int" Value="0">---</MatOption>
-                <MatOption TValue="int" Value="1">Bogisa</MatOption>
-                <MatOption TValue="int" Value="2">Dalibor</MatOption>
-                <MatOption TValue="int" Value="3">Mira</MatOption>
-            </MatSelect>
-            @*Vrsta robe*@
+
+        <div class="mat-layout-grid-inner">
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-2">
+                <MatTextField style="width:100%" Label="Otkup" @bind-Value="@narudzbina.Otkup" />
+            </div>
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-3">
+                <MatSelect Label="Tezina" @bind-Value="@narudzbina.ShipmentCategory">
+                    @foreach (var shipmentCategory in ShipmentCategories.All())
+                    {
+                        <MatOption TValue="int" Value="@shipmentCategory.IdKategorije">@shipmentCategory.NazivKategorije</MatOption>
+                    }
+
+                </MatSelect>
+            </div>
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-3">
+                <MatSelect Label="Nalog za adresnicu" @bind-Value="@narudzbina.IdNalogaSaKogSeSalje">
+                    @foreach (var nalog in Nalozi.All())
+                    {
+                        <MatOption TValue="int" Value="@nalog.UserId">@nalog.DisplayName</MatOption>
+                    }
+                </MatSelect>
+            </div>
+        </div>
+
+        <div class="mat-layout-grid-inner">
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                <MatCard class="demo-mat-card">
+                    <MatCardContent>
+                        <h4>
+                            Dodaj model <button @onclick="OpenDialog">
+                                <span class="oi oi-plus" aria-hidden="true"></span>
+                            </button>
+                        </h4>
+                        @if (narudzbina.DetaljiNarudzbine.Count > 0)
+                        {
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Slika</th>
+                                        <th>Sifra</th>
+                                        <th>Model</th>
+                                        <th>Kolicina</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var detaljNarudzbine in narudzbina.DetaljiNarudzbine)
+                                    {
+                                        <tr>
+                                            <td style="padding: 0"> <img src="@detaljNarudzbine.ModelObuce.GetImageSrc()" style="width: 150px" /></td>
+                                            <td style="padding: 0"> @detaljNarudzbine.ModelObuce.Sifra</td>
+                                            <td style="padding: 0"> @detaljNarudzbine.ModelObuce.NazivModela</td>
+                                            <td style="padding: 0">
+                                                <MatTextField style="width: 100%" @bind-Value="@detaljNarudzbine.Kolicina" />
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                    </MatCardContent>
+                </MatCard>
+            </div>
         </div>
 
 
-
-
-        <button @onclick="Submit">Sacuvaj</button>
+        <button type="submit" @onclick="Submit">Sacuvaj</button>
 
     </div>
-</EditForm>
 
+
+</div>
+
+<MatDialog @bind-IsOpen="@dialogIsOpen" CanBeClosed="false">
+    <MatDialogContent>
+        <div class="mat-layout-grid" style="padding:2px 10px ">
+        <div class="mat-layout-grid-inner">
+            @foreach (var model in modeliObuceNaStanju)
+            {
+
+                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-3">
+                    <MatCard class="demo-mat-card">
+                        <MatCardContent>
+                            <div class="demo-mat-card-content">
+                                <MatSubtitle2 class="demo-mat-card-clean-margin">
+                                    <img src="@model.GetImageSrc()" style="width: 100px" />
+                                </MatSubtitle2>
+                            </div>
+                        </MatCardContent>
+                    </MatCard>
+                </div>
+            }
+            </div>
+        </div>
+    </MatDialogContent>
+    <MatDialogActions>
+        <MatButton OnClick="@(e => { dialogIsOpen = false; })">Odustani</MatButton>
+        <MatButton OnClick="@OkClick">OK</MatButton>
+    </MatDialogActions>
+</MatDialog>
+
+<style>
+    .mdc-dialog .mdc-dialog__surface {
+        width: 800px !important;
+        max-width: none
+    }
+</style>
 
 @code {
     private Narudzbina narudzbina;
@@ -119,6 +182,8 @@
     List<Ulica> pretrazeneUlice = new List<Ulica>();
     string ulicaSearchText;
     string odabranaUlica;
+
+
 
     private Task OnMestoSearchTextChanged(ChangeEventArgs e)
     {
@@ -153,11 +218,16 @@
 
     protected override async Task OnInitializedAsync()
     {
-        narudzbina = new Narudzbina() { IdNalogaSaKogSeSalje = 1 };
+        narudzbina = new Narudzbina()
+        {
+            IdNalogaSaKogSeSalje = 1,
+            ShipmentCategory = 3,
+            DetaljiNarudzbine = new List<DetaljiNarudzbine>()
+        };
         _mesta = await BexAddressService.GetMestaAsync();
     }
 
-    async void IzaberiMesto(Mesto mesto)
+    async Task IzaberiMestoAsync(Mesto mesto)
     {
         narudzbina.IdMesta = mesto.IdMesta;
         odabranoMesto = mesto.TextZaPrikaz;
@@ -176,8 +246,30 @@
 
     void Submit()
     {
+        var x = narudzbina;
         //ModelObuceService.Create(narudzbina);
         //NavigationManager.NavigateTo("/narudzbine");
     }
+    ///////////
 
+    public List<ModelObuce> modeliObuceNaStanju = new List<ModelObuce>();
+    bool dialogIsOpen = false;
+    string name = null;
+    string animal = null;
+    string dialogAnimal = null;
+
+    async Task OpenDialog()
+    {
+        var sviModeliObuceNaStanju = ModelObuceService.ModeliNaStanju();
+        var modeliUNarudzbini = narudzbina.DetaljiNarudzbine.Select(x => x.ModelObuce).AsEnumerable();
+        modeliObuceNaStanju = sviModeliObuceNaStanju.AsEnumerable().Except(modeliUNarudzbini).ToList();
+        dialogAnimal = null;
+        dialogIsOpen = true;
+    }
+
+    void OkClick()
+    {
+        animal = dialogAnimal;
+        dialogIsOpen = false;
+    }
 }

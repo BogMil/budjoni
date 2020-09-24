@@ -26,6 +26,9 @@ namespace Budjoni.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int>("IdModelaObuce")
+                        .HasColumnType("int");
+
                     b.Property<int>("IdNarudzbine")
                         .HasColumnType("int");
 
@@ -33,6 +36,8 @@ namespace Budjoni.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IdModelaObuce");
 
                     b.HasIndex("IdNarudzbine");
 
@@ -47,6 +52,9 @@ namespace Budjoni.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("NazivModela")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Sifra")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("SlikaByteArray")
@@ -64,7 +72,7 @@ namespace Budjoni.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Brojulice")
+                    b.Property<string>("AdresaZaPrikaz")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("DatumSlanja")
@@ -73,7 +81,13 @@ namespace Budjoni.Migrations
                     b.Property<int>("IdMesta")
                         .HasColumnType("int");
 
+                    b.Property<int>("IdNalogaSaKogSeSalje")
+                        .HasColumnType("int");
+
                     b.Property<int>("IdUlice")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdVrsteRobe")
                         .HasColumnType("int");
 
                     b.Property<string>("Ime")
@@ -82,14 +96,26 @@ namespace Budjoni.Migrations
                     b.Property<string>("KontaktTelefon")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("KucniBroj")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NalogSaKogSeSalje")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Otkup")
+                        .HasColumnType("int");
+
                     b.Property<string>("Prezime")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<byte[]>("SlikaByteArray")
-                        .HasColumnType("varbinary(max)");
+                    b.Property<int>("ShipmentCategory")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("TimestampKreiranja")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UlazIliStan")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -121,8 +147,14 @@ namespace Budjoni.Migrations
 
             modelBuilder.Entity("Budjoni.DAL.Models.DetaljiNarudzbine", b =>
                 {
+                    b.HasOne("Budjoni.DAL.Models.ModelObuce", "ModelObuce")
+                        .WithMany()
+                        .HasForeignKey("IdModelaObuce")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Budjoni.DAL.Models.Narudzbina", "Narudzbina")
-                        .WithMany("VelicineModela")
+                        .WithMany("DetaljiNarudzbine")
                         .HasForeignKey("IdNarudzbine")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

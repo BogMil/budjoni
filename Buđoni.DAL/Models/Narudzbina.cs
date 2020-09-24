@@ -22,11 +22,13 @@ namespace Budjoni.DAL.Models
         public string KontaktTelefon{ get; set; }
         public DateTime TimestampKreiranja{ get; set; }
         public DateTime DatumSlanja { get; set; }
+        public int Otkup { get; set; }
+        public int IdVrsteRobe { get; set; }
+        public int ShipmentCategory { get; set; }
 
-        [ForeignKey("NalogSaKogSeSalje")]
         public int IdNalogaSaKogSeSalje { get; set; }
-        public virtual Nalog NalogSaKogSeSalje { get; set; }
-        public virtual ICollection<DetaljiNarudzbine> VelicineModela { get; set; }
+        public string NalogSaKogSeSalje { get; set; }
+        public virtual ICollection<DetaljiNarudzbine> DetaljiNarudzbine { get; set; }
     }
 
     public class DetaljiNarudzbine
@@ -39,5 +41,9 @@ namespace Budjoni.DAL.Models
         [ForeignKey("Narudzbina")]
         public int IdNarudzbine { get; set; }
         public virtual Narudzbina Narudzbina { get; set; }
+
+        [ForeignKey("ModelObuce")]
+        public int IdModelaObuce{ get; set; }
+        public virtual ModelObuce ModelObuce { get; set; }
     }
 }

@@ -8,7 +8,7 @@ namespace Budjoni.DAL
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             :base(options){}
 
-        public DbSet<ModelObuce> ModeliObuce { get; set; }
+        public DbSet<Model> Modeli{ get; set; }
         public DbSet<Narudzbina> Naruzbine { get; set; }
     }
 }

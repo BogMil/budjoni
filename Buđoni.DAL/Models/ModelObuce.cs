@@ -7,15 +7,28 @@ using Budjoni.DAL.Models;
 
 namespace Budjoni.DAL.Models
 {
-    public class ModelObuce
+    public class Model
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public string NazivModela{ get; set; }
-        public string Sifra{ get; set; }
+        public string NazivModela { get; set; }
+        public string Sifra { get; set; }
+        public virtual ICollection<BojaModela> BojeModela { get; set; }
+    }
+
+    public class BojaModela
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+        public string NazivBoje { get; set; }
         public byte[] SlikaByteArray { get; set; }
         public virtual ICollection<VelicinaModela> VelicineModela { get; set; }
+
+        [ForeignKey("Model")]
+        public int IdModela{ get; set; }
+        public virtual Model Model{ get; set; }
 
         public string GetImageSrc()
         {
@@ -34,8 +47,8 @@ namespace Budjoni.DAL.Models
         public string Velicina { get; set; }
         public int KolicinaNaStanju { get; set; }
 
-        [ForeignKey("ModelObuce")]
+        [ForeignKey("BojaModela")]
         public int IdModelaObuce { get; set; }
-        public virtual ModelObuce ModelObuce { get; set; }
+        public virtual BojaModela BojaModela { get; set; }
     }
 }

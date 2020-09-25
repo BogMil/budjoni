@@ -19,37 +19,15 @@ namespace Budjoni.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Budjoni.DAL.Models.DetaljiNarudzbine", b =>
+            modelBuilder.Entity("Budjoni.DAL.Models.BojaModela", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("IdModelaObuce")
+                    b.Property<int>("IdModela")
                         .HasColumnType("int");
-
-                    b.Property<int>("IdNarudzbine")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Kolicina")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdModelaObuce");
-
-                    b.HasIndex("IdNarudzbine");
-
-                    b.ToTable("DetaljiNarudzbine");
-                });
-
-            modelBuilder.Entity("Budjoni.DAL.Models.ModelObuce", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("NazivModela")
                         .HasColumnType("nvarchar(max)");
@@ -62,7 +40,52 @@ namespace Budjoni.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ModeliObuce");
+                    b.HasIndex("IdModela");
+
+                    b.ToTable("BojaModela");
+                });
+
+            modelBuilder.Entity("Budjoni.DAL.Models.DetaljiNarudzbine", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("IdNarudzbine")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdVelicineModela")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Kolicina")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdNarudzbine");
+
+                    b.HasIndex("IdVelicineModela");
+
+                    b.ToTable("DetaljiNarudzbine");
+                });
+
+            modelBuilder.Entity("Budjoni.DAL.Models.Model", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("NazivModela")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Sifra")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Modeli");
                 });
 
             modelBuilder.Entity("Budjoni.DAL.Models.Narudzbina", b =>
@@ -145,24 +168,33 @@ namespace Budjoni.Migrations
                     b.ToTable("VelicinaModela");
                 });
 
-            modelBuilder.Entity("Budjoni.DAL.Models.DetaljiNarudzbine", b =>
+            modelBuilder.Entity("Budjoni.DAL.Models.BojaModela", b =>
                 {
-                    b.HasOne("Budjoni.DAL.Models.ModelObuce", "ModelObuce")
-                        .WithMany()
-                        .HasForeignKey("IdModelaObuce")
+                    b.HasOne("Budjoni.DAL.Models.Model", "Model")
+                        .WithMany("BojeModela")
+                        .HasForeignKey("IdModela")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
+            modelBuilder.Entity("Budjoni.DAL.Models.DetaljiNarudzbine", b =>
+                {
                     b.HasOne("Budjoni.DAL.Models.Narudzbina", "Narudzbina")
                         .WithMany("DetaljiNarudzbine")
                         .HasForeignKey("IdNarudzbine")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Budjoni.DAL.Models.VelicinaModela", "VelicinaModela")
+                        .WithMany()
+                        .HasForeignKey("IdVelicineModela")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("Budjoni.DAL.Models.VelicinaModela", b =>
                 {
-                    b.HasOne("Budjoni.DAL.Models.ModelObuce", "ModelObuce")
+                    b.HasOne("Budjoni.DAL.Models.BojaModela", "BojaModela")
                         .WithMany("VelicineModela")
                         .HasForeignKey("IdModelaObuce")
                         .OnDelete(DeleteBehavior.Cascade)

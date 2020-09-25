@@ -42,8 +42,8 @@ namespace Budjoni.DAL.Models
         public int IdNarudzbine { get; set; }
         public virtual Narudzbina Narudzbina { get; set; }
 
-        [ForeignKey("ModelObuce")]
-        public int IdModelaObuce{ get; set; }
-        public virtual ModelObuce ModelObuce { get; set; }
+        [ForeignKey("VelicinaModela")]
+        public int IdVelicineModela{ get; set; }
+        public virtual VelicinaModela VelicinaModela { get; set; }
     }
 }

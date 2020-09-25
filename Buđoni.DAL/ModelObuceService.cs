@@ -8,24 +8,33 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Budjoni.DAL
 {
-    public class ModelObuceService
+    public class ModelService
     {
         private readonly ApplicationDbContext _db;
-        public ModelObuceService(ApplicationDbContext Db)
+        public ModelService(ApplicationDbContext Db)
         {
             _db = Db;
         }
 
-        public void Create(ModelObuce modelObuce)
+        public void Create(Model model)
         {
-            modelObuce.VelicineModela = modelObuce.VelicineModela.Where(s => s.KolicinaNaStanju > 0).ToList();
-            _db.ModeliObuce.Add(modelObuce);
+            _db.Modeli.Add(model);
             _db.SaveChanges();
         }
 
-        public List<ModelObuce> ModeliNaStanju()
+        public List<Model> ModeliNaStanju()
         {
-            return _db.ModeliObuce.Where(s => s.VelicineModela.Any(v => v.KolicinaNaStanju > 0)).ToList();
+            return _db.Modeli.Where(s => s.BojeModela.Any(v => v.VelicineModela.Any(d=>d.KolicinaNaStanju > 0))).ToList();
+        }
+
+        public List<Model> All()
+        {
+            return _db.Modeli.ToList();
+        }
+
+        public BojaModela GetNovaBojaModela()
+        {
+            return new BojaModela() {VelicineModela = new List<VelicinaModela>()};
         }
     }
 }

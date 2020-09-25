@@ -7,7 +7,7 @@
 @using Budjoni.Data
 @inject NavigationManager NavigationManager
 @inject ApplicationDbContext Db
-@inject ModelObuceService ModelObuceService
+@inject ModelService ModelService
 @inject BexAddressService BexAddressService
 @inject IJSRuntime JS
 
@@ -112,9 +112,9 @@
                                     @foreach (var detaljNarudzbine in narudzbina.DetaljiNarudzbine)
                                     {
                                         <tr>
-                                            <td style="padding: 0"> <img src="@detaljNarudzbine.ModelObuce.GetImageSrc()" style="width: 150px" /></td>
+                                            @*<td style="padding: 0"> <img src="@detaljNarudzbine.VelicinaModela.GetImageSrc()" style="width: 150px" /></td>
                                             <td style="padding: 0"> @detaljNarudzbine.ModelObuce.Sifra</td>
-                                            <td style="padding: 0"> @detaljNarudzbine.ModelObuce.NazivModela</td>
+                                            <td style="padding: 0"> @detaljNarudzbine.ModelObuce.NazivModela</td>*@
                                             <td style="padding: 0">
                                                 <MatTextField style="width: 100%" @bind-Value="@detaljNarudzbine.Kolicina" />
                                             </td>
@@ -252,7 +252,7 @@
     }
     ///////////
 
-    public List<ModelObuce> modeliObuceNaStanju = new List<ModelObuce>();
+    public List<BojaModela> modeliObuceNaStanju = new List<BojaModela>();
     bool dialogIsOpen = false;
     string name = null;
     string animal = null;
@@ -260,11 +260,11 @@
 
     async Task OpenDialog()
     {
-        var sviModeliObuceNaStanju = ModelObuceService.ModeliNaStanju();
-        var modeliUNarudzbini = narudzbina.DetaljiNarudzbine.Select(x => x.ModelObuce).AsEnumerable();
-        modeliObuceNaStanju = sviModeliObuceNaStanju.AsEnumerable().Except(modeliUNarudzbini).ToList();
-        dialogAnimal = null;
-        dialogIsOpen = true;
+        //var sviModeliObuceNaStanju = ModelService.ModeliNaStanju();
+        //var modeliUNarudzbini = narudzbina.DetaljiNarudzbine.Select(x => x.ModelObuce).AsEnumerable();
+        //modeliObuceNaStanju = sviModeliObuceNaStanju.AsEnumerable().Except(modeliUNarudzbini).ToList();
+        //dialogAnimal = null;
+        //dialogIsOpen = true;
     }
 
     void OkClick()

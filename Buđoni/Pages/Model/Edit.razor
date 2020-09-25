@@ -1,4 +1,4 @@
-﻿@page "/model/edit/{Id}"
+﻿@*@page "/model/edit/{Id}"
 @using Budjoni.DAL
 @using Budjoni.DAL.Models
 @using BlazorInputFile
@@ -85,7 +85,7 @@
 @code { [Parameter]
     public string Id { get; set; }
 
-    private ModelObuce modelObuce = new ModelObuce { VelicineModela = new List<VelicinaModela>() };
+    private Model modelObuce = new Model { VelicineModela = new List<VelicinaModela>() };
     string novaVelicina = null;
     int novaKolicina = 0;
     bool dialogIsOpen = false;
@@ -106,7 +106,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        modelObuce = await Db.ModeliObuce.FindAsync(int.Parse(Id));
+        modelObuce = await Db.Modeli.FindAsync(int.Parse(Id));
         imageUrl = modelObuce.GetImageSrc();
         StateHasChanged();
     }
@@ -148,4 +148,4 @@
         Db.ModeliObuce.Update(modelObuce);
         Db.SaveChanges();
         NavigationManager.NavigateTo("/model");
-    } }
+    } }*@

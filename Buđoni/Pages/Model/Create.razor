@@ -1,11 +1,12 @@
 ﻿@page "/model/create"
+@layout FullScreenLayout
 @using Budjoni.DAL
 @using Budjoni.DAL.Models
 @using BlazorInputFile
 @using System.IO
 @inject NavigationManager NavigationManager
 @inject ApplicationDbContext Db
-@inject ModelObuceService ModelObuceService
+@inject ModelService ModelService
 
 
 
@@ -13,43 +14,53 @@
 
 <div class="mat-layout-grid" style="padding:0">
     <div class="mat-layout-grid-inner">
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-1">
+            <MatButton OnClick="Back"> <span class="oi oi-chevron-left" aria-hidden="true"></span></MatButton>
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-5">
+            <MatStringField Label="Naziv modela" Style="width:100%" @bind-Value="@model.NazivModela" />
+        </div>
         <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
-            <MatStringField Label="Naziv modela" Style="width:100%" @bind-Value="@modelObuce.NazivModela" />
-            <MatStringField Label="Sifra" @bind-Value="@modelObuce.Sifra" />
-            <MatCard class="demo-mat-card">
-                @if (modelObuce.SlikaByteArray != null)
-                {
-                    <MatCardContent>
-                        <div class="demo-mat-card-content">
-                            <img src="@imageUrl" />
-                        </div>
-                    </MatCardContent>
-                }
-                <MatCardActions>
 
-                    <InputFile OnChange="HandleFileSelected" />
-                </MatCardActions>
-            </MatCard>
+            <MatStringField Label="Sifra" @bind-Value="@model.Sifra" />
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12" style="text-align: center">
+            <MatButton OnClick="@DodajBoju"><span class="oi oi-plus" aria-hidden="true" /> &nbsp; Dodaj boju modela</MatButton>
         </div>
 
+        @foreach (var bojaModela in model.BojeModela)
+        {
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-3">
+                <MatCard class="demo-mat-card">
+                    @if (bojaModela.SlikaByteArray != null)
+                    {
+                        <MatCardContent>
+                            <div class="demo-mat-card-content">
+                                <img src="@bojaModela.GetImageSrc()" />
+                            </div>
+                        </MatCardContent>
+                    }
+                    <MatCardActions>
 
-        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
-            <MatCard class="demo-mat-card">
-                <MatCardContent>
-                    <h4>
-                        Dodaj novu velicinu <button @onclick="OpenDialog">
-                            <span class="oi oi-plus" aria-hidden="true"></span>
-                        </button>
-                    </h4>
-                    <table class="table">
-                        <thead>
+                        <InputFile OnChange="HandleFileSelected">asd</InputFile>
+                    </MatCardActions>
+                </MatCard>
+                <MatCard class="demo-mat-card">
+                    <MatCardContent>
+                        <h4>
+                            Dodaj novu velicinu <button @onclick="OpenDialog">
+                                <span class="oi oi-plus" aria-hidden="true"></span>
+                            </button>
+                        </h4>
+                        <table class="table">
+                            <thead>
                             <tr>
                                 <th>velicina</th>
                                 <th>Stanje</th>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var velicinaModela in modelObuce.VelicineModela)
+                            </thead>
+                            <tbody>
+                            @foreach (var velicinaModela in bojaModela.VelicineModela)
                             {
                                 <tr>
                                     <td style="padding:0">@velicinaModela.Velicina</td>
@@ -58,11 +69,15 @@
                                     </td>
                                 </tr>
                             }
-                        </tbody>
-                    </table>
-                </MatCardContent>
-            </MatCard>
-        </div>
+                            </tbody>
+                        </table>
+                    </MatCardContent>
+                </MatCard>
+            </div>
+        }
+
+
+
     </div>
     <button @onclick="Submit">Sacuvaj</button>
 
@@ -83,7 +98,8 @@
 
 
 
-@code { private ModelObuce modelObuce;
+@code {
+    private Model model;
     string novaVelicina = null;
     int novaKolicina = 0;
     bool dialogIsOpen = false;
@@ -96,32 +112,43 @@
 
     void DodajVelicinu()
     {
-        modelObuce.VelicineModela.Add(new VelicinaModela() { Velicina = novaVelicina, KolicinaNaStanju = novaKolicina });
-        novaVelicina = null;
-        novaKolicina = 0;
-        dialogIsOpen = false;
+        //modelObuce.VelicineModela.Add(new Model() { Velicina = novaVelicina, KolicinaNaStanju = novaKolicina });
+        //novaVelicina = null;
+        //novaKolicina = 0;
+        //dialogIsOpen = false;
+    }
+
+    void DodajBoju()
+    {
+        model.BojeModela.Add(ModelService.GetNovaBojaModela());
+    }
+
+    void Back()
+    {
+        NavigationManager.NavigateTo("/model");
     }
 
     protected override async Task OnInitializedAsync()
     {
         await Task.Run(() =>
         {
-            modelObuce = new ModelObuce
+            model = new Model
             {
-                VelicineModela = new List<VelicinaModela>()
-                    {
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "36"},
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "37"},
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "38"},
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "39"},
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "40"},
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "41"},
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "43"},
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "44"},
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "45"},
-                new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "46"},
+                BojeModela = new List<BojaModela>()
+                //VelicineModela = new List<VelicinaModela>()
+                //    {
+                //new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "36"},
+                //new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "37"},
+                //new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "38"},
+                //new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "39"},
+                //new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "40"},
+                //new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "41"},
+                //new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "43"},
+                //new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "44"},
+                //new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "45"},
+                //new VelicinaModela(){KolicinaNaStanju = 0,Velicina = "46"},
 
-                                                                            }
+                //}
             };
         });
     }
@@ -130,10 +157,10 @@
 
     async void HandleFileSelected(IFileListEntry[] files)
     {
-        file = files.FirstOrDefault();
-        modelObuce.SlikaByteArray = await StreamToByteArray(file.Data);
-        imageUrl = modelObuce.GetImageSrc();
-        StateHasChanged();
+        //file = files.FirstOrDefault();
+        //modelObuce.SlikaByteArray = await StreamToByteArray(file.Data);
+        //imageUrl = modelObuce.GetImageSrc();
+        //StateHasChanged();
     }
 
     public async Task<byte[]> StreamToByteArray(Stream input)
@@ -158,6 +185,6 @@
 
     void Submit()
     {
-        ModelObuceService.Create(modelObuce);
+        ModelService.Create(model);
         NavigationManager.NavigateTo("/model");
     } }

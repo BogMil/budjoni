@@ -16,7 +16,7 @@ namespace Budjoni.DAL
                 options.UseLazyLoadingProxies();
             });
 
-            services.AddTransient<ModelObuceService>();
+            services.AddTransient<ModelService>();
 
             return services;
         }

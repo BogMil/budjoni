@@ -40,6 +40,11 @@ namespace Budjoni.DAL.Models
             var base64 = Convert.ToBase64String(SlikaByteArray);
             return $"data:image/gif;base64,{base64}";
         }
+
+        public List<VelicinaModela> VelicineModelaNaStanju()
+        {
+            return VelicineModela.Where(x => x.KolicinaNaStanju > 0).ToList();
+        }
     }
 
     public class VelicinaModela

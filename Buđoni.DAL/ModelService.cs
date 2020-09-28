@@ -60,6 +60,11 @@ namespace Budjoni.DAL
             return _db.Modeli.Where(x => x.NazivModela.Contains(textPretrage) || x.Sifra.Contains(textPretrage)).ToList();
         }
 
+        public List<Model> PretraziModeleNaStanjuPoNazivuIliSifri(string textPretrage)
+        {
+            return ModeliNaStanju().Where(x => x.NazivModela.Contains(textPretrage) || x.Sifra.Contains(textPretrage)).ToList();
+        }
+
         public BojaModela GetNovaBojaModela()
         {
             return new BojaModela()

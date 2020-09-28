@@ -1,4 +1,5 @@
 ﻿@page "/narudzbina/create"
+@layout FullScreenLayout
 @using Budjoni.DAL
 @using Budjoni.DAL.Models
 @using BlazorInputFile
@@ -10,6 +11,7 @@
 @inject ModelService ModelService
 @inject BexAddressService BexAddressService
 @inject IJSRuntime JS
+
 
 <div>
     <div class="mat-layout-grid" style="padding:2px 10px ">
@@ -35,7 +37,9 @@
                 <div style="max-height: 300px;overflow-y: auto">
                     @foreach (var mesto in pretrazenaMesta)
                     {
-                        <div><MatButton OnClick="@(()=> IzaberiMestoAsync(mesto))">@mesto.TextZaPrikaz</MatButton></div>
+                        <div>
+                            <MatButton OnClick="@(()=> IzaberiMestoAsync(mesto))">@mesto.TextZaPrikaz</MatButton>
+                        </div>
                     }
                 </div>
             </div>
@@ -45,7 +49,9 @@
                 <div style="max-height: 300px;overflow-y: auto">
                     @foreach (var ulica in pretrazeneUlice)
                     {
-                        <div><MatButton OnClick="@(()=>IzaberiUlicu(ulica))">@ulica.Naziv</MatButton></div>
+                        <div>
+                            <MatButton OnClick="@(()=>IzaberiUlicu(ulica))">@ulica.Naziv</MatButton>
+                        </div>
                     }
                 </div>
             </div>
@@ -73,9 +79,10 @@
                 <MatSelect Label="Tezina" @bind-Value="@narudzbina.ShipmentCategory">
                     @foreach (var shipmentCategory in ShipmentCategories.All())
                     {
-                        <MatOption TValue="int" Value="@shipmentCategory.IdKategorije">@shipmentCategory.NazivKategorije</MatOption>
+                        <MatOption TValue="int" Value="@shipmentCategory.IdKategorije">
+                            @shipmentCategory.NazivKategorije
+                        </MatOption>
                     }
-
                 </MatSelect>
             </div>
             <div class="mat-layout-grid-cell mat-layout-grid-cell-span-3">
@@ -97,27 +104,41 @@
             <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
                 <MatCard class="demo-mat-card">
                     <MatCardContent>
-
                         @if (narudzbina.DetaljiNarudzbine.Count > 0)
                         {
                             <table class="table">
                                 <thead>
                                     <tr>
                                         <th>Slika</th>
-                                        <th>Sifra</th>
                                         <th>Model</th>
                                         <th>Kolicina</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var detaljNarudzbine in narudzbina.DetaljiNarudzbine)
                                     {
                                         <tr>
-                                            @*<td style="padding: 0"> <img src="@detaljNarudzbine.VelicinaModela.GetImageSrc()" style="width: 150px" /></td>
-                                                <td style="padding: 0"> @detaljNarudzbine.ModelObuce.Sifra</td>
-                                                <td style="padding: 0"> @detaljNarudzbine.ModelObuce.NazivModela</td>*@
                                             <td style="padding: 0">
-                                                <MatTextField style="width: 100%" @bind-Value="@detaljNarudzbine.Kolicina" />
+                                                @detaljNarudzbine.VelicinaModela.BojaModela.NazivBoje
+                                                <br/>
+                                                 <img src="@detaljNarudzbine.VelicinaModela.BojaModela.GetImageSrc()" style="width: 100px" />
+                                            </td>
+                                            <td style="padding: 0">
+                                                 @detaljNarudzbine.VelicinaModela.BojaModela.Model.NazivModela
+                                                 <br/>
+                                                 @detaljNarudzbine.VelicinaModela.BojaModela.Model.Sifra
+                                            </td>
+                                            <td style="padding: 0;text-align:center">
+                                                 @detaljNarudzbine.Kolicina
+                                            </td>
+                                            <td>
+                                                <MatButton >
+                                                    <span class="oi oi-pencil" aria-hidden="true"></span>
+                                                </MatButton>
+                                                <MatButton >
+                                                    <span class="oi oi-x" aria-hidden="true"></span>
+                                                </MatButton>
                                             </td>
                                         </tr>
                                     }
@@ -129,17 +150,13 @@
             </div>
         </div>
 
-
         <button type="submit" @onclick="Submit">Sacuvaj</button>
-
     </div>
-
-
 </div>
 
 <MatDialog @bind-IsOpen="@dialogIsOpen" CanBeClosed="false">
     <MatDialogTitle>
-        <MatStringField style="width:100%" Label="Napomena za adresnicu" @bind-Value="@narudzbina.KucniBroj" />
+        <MatStringField style="width:100%" Label="Pretraga modela" @bind-Value="@textPretrage"  OnInput="OnTextPretrageChanged" />
     </MatDialogTitle>
     <MatDialogContent>
         <div class="mat-layout-grid" style="padding:2px 10px ">
@@ -152,13 +169,11 @@
                                 <MatH6>@model.NazivModela - @model.Sifra </MatH6>
                             </div>
                             <div class="mat-layout-grid-inner">
-
                                 @foreach (var bojaModela in model.BojeModela)
                                 {
-
-                                    <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
-                                        <MatCard>
-                                            <MatCardContent>
+                                    <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4" >
+                                        <MatCard @onclick="()=>OpenIzborVelicineDialog(bojaModela)">
+                                            <MatCardContent >
                                                 <MatSubtitle2 style="padding-left:10px">
                                                     @bojaModela.NazivBoje
                                                 </MatSubtitle2>
@@ -171,14 +186,46 @@
                                 }
                             </div>
                         </MatCard>
-                    </div>
-                }
+                    </div>}
             </div>
         </div>
     </MatDialogContent>
     <MatDialogActions>
-        <MatButton OnClick="@(e => { dialogIsOpen = false; })">Odustani</MatButton>
-        <MatButton OnClick="@OkClick">OK</MatButton>
+        <MatButton OnClick="@(e => { dialogIsOpen = false; })">Ok</MatButton>
+    </MatDialogActions>
+</MatDialog>
+
+
+<MatDialog @bind-IsOpen="@izborVelicineDialogIsOpen" CanBeClosed="false">
+    <MatDialogContent>
+        <MatSubtitle2 style="text-align: center">
+            <img src="@izabranaBojaModela.GetImageSrc()" style="width: 100px" />
+        </MatSubtitle2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>velicina</th>
+                    <th>Stanje</th>
+                    <th>Kolicina</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var detaljiNarudzbine in @noviDetaljiNarudzbine)
+                {
+                    <tr>
+                        <td style="padding: 0; text-align: center">@detaljiNarudzbine.VelicinaModela.Velicina</td>
+                        <td style="padding:0; text-align: center">@detaljiNarudzbine.VelicinaModela.KolicinaNaStanju</td>
+                        <td style="padding:0">
+                            <input @bind="@detaljiNarudzbine.Kolicina" style="width:100px" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </MatDialogContent>
+    <MatDialogActions>
+        <MatButton OnClick="@(e => { izborVelicineDialogIsOpen = false; })">Odustani</MatButton>
+        <MatButton OnClick="@IzborVelicinaModela">OK</MatButton>
     </MatDialogActions>
 </MatDialog>
 
@@ -265,22 +312,59 @@
 
     public List<Model> modeliObuceNaStanju = new List<Model>();
     bool dialogIsOpen = false;
-    string name = null;
-    string animal = null;
-    string dialogAnimal = null;
-
-    async Task OpenDialogAsync()
+    string textPretrage = "";
+    void OpenDialogAsync()
     {
         var sviModeliObuceNaStanju = ModelService.ModeliNaStanju();
         var modeliUNarudzbini = narudzbina.DetaljiNarudzbine.Select(x => x.VelicinaModela.BojaModela.Model).AsEnumerable().Distinct();
         modeliObuceNaStanju = sviModeliObuceNaStanju.AsEnumerable().Except(modeliUNarudzbini).ToList();
-        dialogAnimal = null;
         dialogIsOpen = true;
     }
 
-    void OkClick()
+    private void OnTextPretrageChanged(ChangeEventArgs e)
     {
-        animal = dialogAnimal;
-        dialogIsOpen = false;
+        textPretrage = e.Value.ToString();
+        pretraziModeleAsync();
+    }
+
+    private void pretraziModeleAsync()
+    {
+        List<Model> sviModeliObuceNaStanju;
+        List<Model> modeliUNarudzbini;
+        if (textPretrage.Length == 0)
+        {
+            sviModeliObuceNaStanju = ModelService.ModeliNaStanju();
+            modeliUNarudzbini = narudzbina.DetaljiNarudzbine.Select(x => x.VelicinaModela.BojaModela.Model).AsEnumerable().Distinct().ToList();
+            modeliObuceNaStanju = sviModeliObuceNaStanju.AsEnumerable().Except(modeliUNarudzbini).ToList();
+            StateHasChanged();
+        }
+
+        sviModeliObuceNaStanju = ModelService.PretraziModeleNaStanjuPoNazivuIliSifri(textPretrage);
+        modeliUNarudzbini = narudzbina.DetaljiNarudzbine.Select(x => x.VelicinaModela.BojaModela.Model).AsEnumerable().Distinct().ToList();
+        modeliObuceNaStanju = sviModeliObuceNaStanju.AsEnumerable().Except(modeliUNarudzbini).ToList();
+        StateHasChanged();
+    }
+    /// MODEL IZBOR VELICINE
+
+
+    bool izborVelicineDialogIsOpen = false;
+    BojaModela izabranaBojaModela = new BojaModela() { VelicineModela = new List<VelicinaModela>() };
+    List<DetaljiNarudzbine> noviDetaljiNarudzbine = new List<DetaljiNarudzbine>();
+
+    void OpenIzborVelicineDialog(BojaModela bojaModela)
+    {
+        izborVelicineDialogIsOpen = true;
+        izabranaBojaModela = bojaModela;
+        noviDetaljiNarudzbine = bojaModela.VelicineModelaNaStanju().Select(x => new DetaljiNarudzbine() { IdVelicineModela = x.Id, Kolicina = 0, VelicinaModela = x }).ToList();
+        StateHasChanged();
+    }
+
+    void IzborVelicinaModela()
+    {
+        var detaljiNarudzbine = noviDetaljiNarudzbine.Where(x => x.Kolicina > 0).ToList();
+        narudzbina.DetaljiNarudzbine.AddRange(detaljiNarudzbine);
+        izborVelicineDialogIsOpen = false;
+        pretraziModeleAsync();
+        StateHasChanged();
     }
 }

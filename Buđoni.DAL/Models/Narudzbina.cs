@@ -28,7 +28,7 @@ namespace Budjoni.DAL.Models
 
         public int IdNalogaSaKogSeSalje { get; set; }
         public string NalogSaKogSeSalje { get; set; }
-        public virtual ICollection<DetaljiNarudzbine> DetaljiNarudzbine { get; set; }
+        public virtual List<DetaljiNarudzbine> DetaljiNarudzbine { get; set; }
     }
 
     public class DetaljiNarudzbine

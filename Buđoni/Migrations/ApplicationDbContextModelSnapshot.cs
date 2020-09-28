@@ -29,10 +29,7 @@ namespace Budjoni.Migrations
                     b.Property<int>("IdModela")
                         .HasColumnType("int");
 
-                    b.Property<string>("NazivModela")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Sifra")
+                    b.Property<string>("NazivBoje")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("SlikaByteArray")

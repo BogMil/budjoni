@@ -89,14 +89,15 @@
         </div>
 
         <div class="mat-layout-grid-inner">
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12" style="text-align:center">
+                <MatButton OnClick="OpenDialogAsync">
+                    <span class="oi oi-plus" aria-hidden="true"></span>&nbsp;Dodaj model
+                </MatButton>
+            </div>
             <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
                 <MatCard class="demo-mat-card">
                     <MatCardContent>
-                        <h4>
-                            Dodaj model <button @onclick="OpenDialog">
-                                <span class="oi oi-plus" aria-hidden="true"></span>
-                            </button>
-                        </h4>
+
                         @if (narudzbina.DetaljiNarudzbine.Count > 0)
                         {
                             <table class="table">
@@ -113,8 +114,8 @@
                                     {
                                         <tr>
                                             @*<td style="padding: 0"> <img src="@detaljNarudzbine.VelicinaModela.GetImageSrc()" style="width: 150px" /></td>
-                                            <td style="padding: 0"> @detaljNarudzbine.ModelObuce.Sifra</td>
-                                            <td style="padding: 0"> @detaljNarudzbine.ModelObuce.NazivModela</td>*@
+                                                <td style="padding: 0"> @detaljNarudzbine.ModelObuce.Sifra</td>
+                                                <td style="padding: 0"> @detaljNarudzbine.ModelObuce.NazivModela</td>*@
                                             <td style="padding: 0">
                                                 <MatTextField style="width: 100%" @bind-Value="@detaljNarudzbine.Kolicina" />
                                             </td>
@@ -137,24 +138,41 @@
 </div>
 
 <MatDialog @bind-IsOpen="@dialogIsOpen" CanBeClosed="false">
+    <MatDialogTitle>
+        <MatStringField style="width:100%" Label="Napomena za adresnicu" @bind-Value="@narudzbina.KucniBroj" />
+    </MatDialogTitle>
     <MatDialogContent>
         <div class="mat-layout-grid" style="padding:2px 10px ">
-        <div class="mat-layout-grid-inner">
-            @foreach (var model in modeliObuceNaStanju)
-            {
-
-                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-3">
-                    <MatCard class="demo-mat-card">
-                        <MatCardContent>
-                            <div class="demo-mat-card-content">
-                                <MatSubtitle2 class="demo-mat-card-clean-margin">
-                                    <img src="@model.GetImageSrc()" style="width: 100px" />
-                                </MatSubtitle2>
+            <div class="mat-layout-grid-inner">
+                @foreach (var model in modeliObuceNaStanju)
+                {
+                    <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12" style="border-style: solid; border-color: rgb(98, 0, 238); border-width: 2px">
+                        <MatCard>
+                            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12" style="text-align: center">
+                                <MatH6>@model.NazivModela - @model.Sifra </MatH6>
                             </div>
-                        </MatCardContent>
-                    </MatCard>
-                </div>
-            }
+                            <div class="mat-layout-grid-inner">
+
+                                @foreach (var bojaModela in model.BojeModela)
+                                {
+
+                                    <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
+                                        <MatCard>
+                                            <MatCardContent>
+                                                <MatSubtitle2 style="padding-left:10px">
+                                                    @bojaModela.NazivBoje
+                                                </MatSubtitle2>
+                                                <MatSubtitle2 style="text-align: center">
+                                                    <img src="@bojaModela.GetImageSrc()" style="width: 100px" />
+                                                </MatSubtitle2>
+                                            </MatCardContent>
+                                        </MatCard>
+                                    </div>
+                                }
+                            </div>
+                        </MatCard>
+                    </div>
+                }
             </div>
         </div>
     </MatDialogContent>
@@ -163,13 +181,6 @@
         <MatButton OnClick="@OkClick">OK</MatButton>
     </MatDialogActions>
 </MatDialog>
-
-<style>
-    .mdc-dialog .mdc-dialog__surface {
-        width: 800px !important;
-        max-width: none
-    }
-</style>
 
 @code {
     private Narudzbina narudzbina;
@@ -252,19 +263,19 @@
     }
     ///////////
 
-    public List<BojaModela> modeliObuceNaStanju = new List<BojaModela>();
+    public List<Model> modeliObuceNaStanju = new List<Model>();
     bool dialogIsOpen = false;
     string name = null;
     string animal = null;
     string dialogAnimal = null;
 
-    async Task OpenDialog()
+    async Task OpenDialogAsync()
     {
-        //var sviModeliObuceNaStanju = ModelService.ModeliNaStanju();
-        //var modeliUNarudzbini = narudzbina.DetaljiNarudzbine.Select(x => x.ModelObuce).AsEnumerable();
-        //modeliObuceNaStanju = sviModeliObuceNaStanju.AsEnumerable().Except(modeliUNarudzbini).ToList();
-        //dialogAnimal = null;
-        //dialogIsOpen = true;
+        var sviModeliObuceNaStanju = ModelService.ModeliNaStanju();
+        var modeliUNarudzbini = narudzbina.DetaljiNarudzbine.Select(x => x.VelicinaModela.BojaModela.Model).AsEnumerable().Distinct();
+        modeliObuceNaStanju = sviModeliObuceNaStanju.AsEnumerable().Except(modeliUNarudzbini).ToList();
+        dialogAnimal = null;
+        dialogIsOpen = true;
     }
 
     void OkClick()

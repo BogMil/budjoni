@@ -2,16 +2,19 @@
 @using Budjoni.DAL
 @using Budjoni.DAL.Models
 @inject IJSRuntime JsRuntime
-@inject ApplicationDbContext Db
 @inject ModelService ModelService
+@inject NavigationManager NavigationManager
+<MatH4>
+    Modeli buđonija
+    <MatButton OnClick="GoToCreatePage">
+        <span class="oi oi-plus" aria-hidden="true"> </span>&nbsp; Dodaj novi model
+    </MatButton>
+    
+</MatH4>
 
-<h4>
-    Modeli buđonija <button>
-        <NavLink class="nav-link" href="model/create">
-            <span class="oi oi-plus" aria-hidden="true"></span>
-        </NavLink>
-    </button>
-</h4>
+
+   
+    <MatStringField Label="Pretraga po nazivu ili sifri" @bind-Value="@textPretrage" OnInput="OnTextPretrageChanged"/>
 
 
 
@@ -22,34 +25,83 @@ else
 {
     @foreach (var model in modeliObuce)
     {
-        <MatCard class="demo-mat-card">
-            <div class="demo-mat-card-content">
-                <MatHeadline6 class="demo-mat-card-clean-margin">
-                    Our Changing Planet
-                </MatHeadline6>
-                <MatSubtitle2 class="demo-mat-card-clean-margin">
-                    by Kurt Wagner
-                </MatSubtitle2>
-            </div>
+        <MatCard class="demo-mat-card"  style="border-style: solid; border-color: rgb(98, 0, 238); border-width: 2px">
             <MatCardContent>
                 <div class="demo-mat-card-content">
                     <MatSubtitle2 class="demo-mat-card-clean-margin">
                         <div class="mat-layout-grid" style="padding: 2px 10px">
                             <div class="mat-layout-grid-inner">
-                                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">@model.NazivModela - @model.Sifra </div>
+                                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6"><MatH5>@model.NazivModela - @model.Sifra </MatH5></div>
+                                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6" style="text-align:right">
+                                    <MatButton OnClick="()=>GoToEditModel(model.Id)">
+                                        <span class="oi oi-pencil" aria-hidden="true" />
+                                    </MatButton>
+                                    <MatButton OnClick="()=>IzbrisiModel(model.Id)">
+                                        <span class="oi oi-x" aria-hidden="true" />
+                                    </MatButton>
+                                </div>
                             </div>
                         </div>
                     </MatSubtitle2>
+
+                    <div class="mat-layout-grid" style="padding: 2px 10px">
+                        <div class="mat-layout-grid-inner">
+                            @foreach (var bojaModela in model.BojeModela)
+                            {
+
+                                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-3">
+                                    <MatCard class="demo-mat-card">
+                                        <MatCardContent>
+                                            <div class="demo-mat-card-content">
+                                                <MatH6>@bojaModela.NazivBoje</MatH6>
+                                            </div>
+                                            <div class="demo-mat-card-content">
+                                                <img src="@bojaModela.GetImageSrc()" style="width: 100px" />
+                                            </div>
+
+                                            <div class="demo-mat-card-content">
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>velicina</th>
+                                                            <th>Stanje</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var velicinaModela in bojaModela.VelicineModela)
+                                                        {
+                                                            if (velicinaModela.KolicinaNaStanju <= 0)
+                                                            {
+
+                                                            }
+                                                            <tr style="@(velicinaModela.KolicinaNaStanju <= 0 ? "background-color:red":"")">
+                                                                <td style="padding: 0; text-align: center">@velicinaModela.Velicina</td>
+                                                                <td style="padding:0">
+                                                                    @velicinaModela.KolicinaNaStanju
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                        </MatCardContent>
+                                    </MatCard>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 </div>
-                <MatBody2 class="demo-mat-card-content demo-mat-card-clean-margin">
-                    Visit ten places on our planet that are undergoing the biggest changes today.
-                </MatBody2>
             </MatCardContent>
         </MatCard>
     }
 }
 
-    @code { private List<Model> modeliObuce;
+@code { 
+    private List<Model> modeliObuce;
+    private string textPretrage;
+
+    private void GoToCreatePage()=> NavigationManager.NavigateTo("model/create");
 
     protected override async Task OnInitializedAsync()
     {
@@ -59,16 +111,36 @@ else
         });
     }
 
+    private void GoToEditModel(int id)
+    {
+        NavigationManager.NavigateTo("model/edit/"+id);
+    }
+
     async void IzbrisiModel(int id)
     {
-        bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Miro, da li si sigurna da hoces da obrises budjonija?");
+        bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Da li ste sigurni?");
 
         if (!confirmed)
             return;
 
-        var modelObuce = Db.Modeli.Find(id);
-        Db.Modeli.Remove(modelObuce);
-        Db.SaveChanges();
-        modeliObuce = Db.Modeli.ToList();
+        ModelService.Delete(id);
+        modeliObuce = ModelService.All();
         StateHasChanged();
-    } }
+    }
+
+    private Task OnTextPretrageChanged(ChangeEventArgs e)
+    {
+        textPretrage = e.Value.ToString();
+        if (textPretrage.Length == 0)
+        {
+            modeliObuce = ModelService.All();
+            StateHasChanged();
+            return Task.CompletedTask;
+        }
+
+        modeliObuce = ModelService.PretraziPoNazivuIliSifri(textPretrage);
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+}

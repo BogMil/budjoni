@@ -54,8 +54,7 @@ namespace Budjoni.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    NazivModela = table.Column<string>(nullable: true),
-                    Sifra = table.Column<string>(nullable: true),
+                    NazivBoje = table.Column<string>(nullable: true),
                     SlikaByteArray = table.Column<byte[]>(nullable: true),
                     IdModela = table.Column<int>(nullable: false)
                 },

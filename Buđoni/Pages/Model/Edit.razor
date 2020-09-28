@@ -1,74 +1,95 @@
-﻿@*@page "/model/edit/{Id}"
+﻿
+@page "/model/edit/{Id}"
+@layout FullScreenLayout
 @using Budjoni.DAL
 @using Budjoni.DAL.Models
 @using BlazorInputFile
 @using System.IO
 @inject NavigationManager NavigationManager
 @inject ApplicationDbContext Db
-
-
+@inject ModelService ModelService
+@inject IJSRuntime JsRuntime;
 
 <div class="mat-layout-grid" style="padding:0">
     <div class="mat-layout-grid-inner">
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-1">
+            <MatButton OnClick="Back"> <span class="oi oi-chevron-left" aria-hidden="true"></span></MatButton>
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-5">
+            <MatStringField Label="Naziv modela" Style="width:100%" @bind-Value="@model.NazivModela" />
+        </div>
         <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
-            <MatStringField Label="Naziv modela" Style="width:100%" @bind-Value="@modelObuce.NazivModela" />
-            <MatStringField Label="Sifra" @bind-Value="@modelObuce.Sifra" />
-            <MatCard class="demo-mat-card">
-                @if (modelObuce.SlikaByteArray != null)
-                {
-                    <MatCardContent>
-                        <div class="demo-mat-card-content">
-                            <img src="@imageUrl" />
+
+            <MatStringField Label="Sifra" @bind-Value="@model.Sifra" />
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12" style="text-align: center">
+            <MatButton OnClick="@DodajBoju"><span class="oi oi-plus" aria-hidden="true" /> &nbsp; Dodaj boju modela</MatButton>
+        </div>
+
+        @foreach (var bojaModela in model.BojeModela)
+        {
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4" @onclick="()=>OnBojaModelaCardClick(bojaModela)"
+                 style="border-style: solid; border-color: rgb(98, 0, 238); border-width: 2px">
+                <MatCard class="demo-mat-card">
+                    <div class="mat-layout-grid-inner">
+                        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-10">
+                            <MatStringField Label="Naziv boje" Style="width:100%" @bind-Value="@bojaModela.NazivBoje" />
                         </div>
-                    </MatCardContent>
-                }
-                <MatCardActions>
-
-                    <InputFile OnChange="HandleFileSelected" />
-                </MatCardActions>
-            </MatCard>
-        </div>
-
-
-        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
-            <MatCard class="demo-mat-card">
-                <MatCardContent>
-                    <h4>
-                        Dodaj novu velicinu <button @onclick="OpenDialog">
-                            <span class="oi oi-plus" aria-hidden="true"></span>
-                        </button>
-                    </h4>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>velicina</th>
-                                <th>Stanje</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var velicinaModela in modelObuce.VelicineModela)
-                            {
+                        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-2" style="text-align: right;">
+                            <button style="color:red" @onclick="()=>IzbrisiBoju(bojaModela)"><span class="oi oi-x" aria-hidden="true" /></button>
+                        </div>
+                    </div>
+                    @if (bojaModela.SlikaByteArray != null)
+                    {
+                        <MatCardContent>
+                            <div class="demo-mat-card-content">
+                                <img src="@bojaModela.GetImageSrc()" style="width:100%" />
+                            </div>
+                        </MatCardContent>
+                    }
+                    <MatCardActions>
+                        <div style="text-align: center">
+                            <MatFileUpload OnChange="@HandleFileSelected" Label="slika"></MatFileUpload>
+                        </div>
+                    </MatCardActions>
+                </MatCard>
+                <MatCard class="demo-mat-card">
+                    <MatCardContent>
+                        <MatButton OnClick="@OpenDodajVelicinuDialog"><span class="oi oi-plus" aria-hidden="true" /> &nbsp; Dodaj novu velicinu</MatButton>
+                        <table class="table">
+                            <thead>
                                 <tr>
-                                    <td style="padding:0">@velicinaModela.Velicina</td>
-                                    <td style="padding:0">
-                                        <MatTextField style="width:100%" Label="Otkup" @bind-Value="@velicinaModela.KolicinaNaStanju" />
-                                    </td>
+                                    <th>velicina</th>
+                                    <th>Stanje</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
-                </MatCardContent>
-            </MatCard>
-        </div>
+                            </thead>
+                            <tbody>
+                                @foreach (var velicinaModela in bojaModela.VelicineModela)
+                                {
+                                    <tr style="@(velicinaModela.KolicinaNaStanju <= 0 ? "background-color:red":"")">
+                                        <td style="padding: 0; text-align: center">@velicinaModela.Velicina</td>
+                                        <td style="padding:0">
+                                            <input @bind="@velicinaModela.KolicinaNaStanju" style="width:100px" />
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </MatCardContent>
+                </MatCard>
+            </div>
+        }
+
+    <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12" style="text-align: center">
+        <MatButton OnClick="Back">Odustani</MatButton>
+        <MatButton OnClick="Submit">Sacuvaj</MatButton>
     </div>
-    <button @onclick="Submit">Sacuvaj</button>
-    <button>
-        <NavLink class="nav-link" href="@{"model"}">
-            Odustani
-        </NavLink>
-    </button>
+
+    </div>
 
 </div>
+
+
 
 <MatDialog @bind-IsOpen="@dialogIsOpen">
     <MatDialogContent>
@@ -82,42 +103,66 @@
 </MatDialog>
 
 
-@code { [Parameter]
-    public string Id { get; set; }
 
-    private Model modelObuce = new Model { VelicineModela = new List<VelicinaModela>() };
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    private Model model = DAL.ModelService.GetNewModel();
     string novaVelicina = null;
     int novaKolicina = 0;
     bool dialogIsOpen = false;
     string imageUrl;
+    BojaModela selektovanaBojaModela = null;
 
-    void OpenDialog()
+    void OnBojaModelaCardClick(BojaModela bojaModela)
+    {
+        selektovanaBojaModela = bojaModela;
+    }
+
+    void OpenDodajVelicinuDialog()
     {
         dialogIsOpen = true;
     }
 
     void DodajVelicinu()
     {
-        modelObuce.VelicineModela.Add(new VelicinaModela() { Velicina = novaVelicina, KolicinaNaStanju = novaKolicina });
+        selektovanaBojaModela.VelicineModela.Add(new VelicinaModela() { Velicina = novaVelicina, KolicinaNaStanju = novaKolicina });
         novaVelicina = null;
         novaKolicina = 0;
         dialogIsOpen = false;
     }
 
-    protected override async Task OnInitializedAsync()
+    void DodajBoju()
     {
-        modelObuce = await Db.Modeli.FindAsync(int.Parse(Id));
-        imageUrl = modelObuce.GetImageSrc();
-        StateHasChanged();
+        model.BojeModela.Add(ModelService.GetNovaBojaModela());
     }
 
-    IFileListEntry file;
-
-    async void HandleFileSelected(IFileListEntry[] files)
+    async void IzbrisiBoju(BojaModela bojaModela)
     {
-        file = files.FirstOrDefault();
-        modelObuce.SlikaByteArray = await StreamToByteArray(file.Data);
-        imageUrl = modelObuce.GetImageSrc();
+        var confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Da li ste sigurni?");
+        if(confirmed)
+            model.BojeModela.Remove(bojaModela);
+    }
+
+    void Back()
+    {
+        NavigationManager.NavigateTo("/model");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Run(() =>
+        {
+            model = ModelService.Find(int.Parse(Id));
+        });
+    }
+
+    async void HandleFileSelected(IMatFileUploadEntry[] files)
+    {
+        var file = files.FirstOrDefault();
+        MemoryStream stream = new MemoryStream();
+        await file.WriteToStreamAsync(stream);
+        selektovanaBojaModela.SlikaByteArray = stream.ToArray();
         StateHasChanged();
     }
 
@@ -126,15 +171,13 @@
         try
         {
             byte[] buffer = new byte[16 * 1024];
-            using (MemoryStream ms = new MemoryStream())
+            await using MemoryStream ms = new MemoryStream();
+            int read;
+            while ((read = await input.ReadAsync(buffer, 0, buffer.Length)) > 0)
             {
-                int read;
-                while ((read = await input.ReadAsync(buffer, 0, buffer.Length)) > 0)
-                {
-                    ms.Write(buffer, 0, read);
-                }
-                return ms.ToArray();
+                ms.Write(buffer, 0, read);
             }
+            return ms.ToArray();
         }
         catch (Exception e)
         {
@@ -145,7 +188,6 @@
 
     void Submit()
     {
-        Db.ModeliObuce.Update(modelObuce);
-        Db.SaveChanges();
+        ModelService.Update(model);
         NavigationManager.NavigateTo("/model");
-    } }*@
+    } }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using Budjoni.DAL.Models;
 
 namespace Budjoni.DAL.Models
@@ -15,6 +16,8 @@ namespace Budjoni.DAL.Models
         public string NazivModela { get; set; }
         public string Sifra { get; set; }
         public virtual ICollection<BojaModela> BojeModela { get; set; }
+
+        
     }
 
     public class BojaModela

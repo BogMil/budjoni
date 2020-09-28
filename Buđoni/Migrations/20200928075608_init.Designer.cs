@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Budjoni.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200925054501_init")]
+    [Migration("20200928075608_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,10 +31,7 @@ namespace Budjoni.Migrations
                     b.Property<int>("IdModela")
                         .HasColumnType("int");
 
-                    b.Property<string>("NazivModela")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Sifra")
+                    b.Property<string>("NazivBoje")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("SlikaByteArray")

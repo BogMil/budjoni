@@ -44,7 +44,7 @@
                     @if (bojaModela.SlikaByteArray != null)
                     {
                         <MatCardContent>
-                            <div class="demo-mat-card-content">
+                            <div >
                                 <img src="@bojaModela.GetImageSrc()" style="width:100%" />
                             </div>
                         </MatCardContent>
@@ -143,10 +143,8 @@
         model.BojeModela.Remove(bojaModela);
     }
 
-    void Back()
-    {
-        NavigationManager.NavigateTo("/model");
-    }
+    void Back()=>NavigationManager.NavigateTo("/model");
+    
 
     protected override async Task OnInitializedAsync()
     {

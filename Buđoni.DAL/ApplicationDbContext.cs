@@ -10,5 +10,12 @@ namespace Budjoni.DAL
 
         public DbSet<Model> Modeli{ get; set; }
         public DbSet<Narudzbina> Naruzbine { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Narudzbina>()
+                .Property(b => b.DatumKreiranja)
+                .HasDefaultValueSql("getdate()");
+        }
     }
 }

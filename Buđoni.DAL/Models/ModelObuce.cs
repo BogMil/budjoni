@@ -16,8 +16,6 @@ namespace Budjoni.DAL.Models
         public string NazivModela { get; set; }
         public string Sifra { get; set; }
         public virtual ICollection<BojaModela> BojeModela { get; set; }
-
-        
     }
 
     public class BojaModela

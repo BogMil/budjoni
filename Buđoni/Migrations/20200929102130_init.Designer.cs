@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Budjoni.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200928075608_init")]
+    [Migration("20200929102130_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -97,44 +97,60 @@ namespace Budjoni.Migrations
                     b.Property<string>("AdresaZaPrikaz")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("DatumSlanja")
+                    b.Property<DateTime>("DatumKreiranja")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<DateTime?>("DatumSlanja")
+                        .IsRequired()
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("IdMesta")
+                    b.Property<int>("IdAdresnice")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("IdMesta")
+                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<int>("IdNalogaSaKogSeSalje")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdUlice")
+                    b.Property<int?>("IdUlice")
+                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<int>("IdVrsteRobe")
                         .HasColumnType("int");
 
                     b.Property<string>("Ime")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("KontaktTelefon")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("KucniBroj")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NalogSaKogSeSalje")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Otkup")
+                    b.Property<string>("NapomenaZaAdresnicu")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Otkup")
+                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<string>("Prezime")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ShipmentCategory")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("TimestampKreiranja")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("UlazIliStan")
                         .HasColumnType("nvarchar(max)");

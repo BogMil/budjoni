@@ -25,10 +25,10 @@ else
 {
     @foreach (var model in modeliObuce)
     {
-        <MatCard class="demo-mat-card"  style="border-style: solid; border-color: rgb(98, 0, 238); border-width: 2px">
+        <MatCard  style="border-style: solid; border-color: rgb(98, 0, 238); border-width: 2px">
             <MatCardContent>
-                <div class="demo-mat-card-content">
-                    <MatSubtitle2 class="demo-mat-card-clean-margin">
+                <div >
+                    <MatSubtitle2 >
                         <div class="mat-layout-grid" style="padding: 2px 10px">
                             <div class="mat-layout-grid-inner">
                                 <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6"><MatH5>@model.NazivModela - @model.Sifra </MatH5></div>
@@ -52,14 +52,14 @@ else
                                 <div class="mat-layout-grid-cell mat-layout-grid-cell-span-3">
                                     <MatCard class="demo-mat-card">
                                         <MatCardContent>
-                                            <div class="demo-mat-card-content">
+                                            <div >
                                                 <MatH6>@bojaModela.NazivBoje</MatH6>
                                             </div>
-                                            <div class="demo-mat-card-content">
+                                            <div >
                                                 <img src="@bojaModela.GetImageSrc()" style="width: 100px" />
                                             </div>
 
-                                            <div class="demo-mat-card-content">
+                                            <div >
                                                 <table class="table">
                                                     <thead>
                                                         <tr>

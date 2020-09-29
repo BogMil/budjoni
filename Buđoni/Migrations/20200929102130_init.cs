@@ -27,21 +27,23 @@ namespace Budjoni.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Ime = table.Column<string>(nullable: true),
-                    Prezime = table.Column<string>(nullable: true),
+                    Ime = table.Column<string>(nullable: false),
+                    Prezime = table.Column<string>(nullable: false),
                     IdMesta = table.Column<int>(nullable: false),
                     IdUlice = table.Column<int>(nullable: false),
-                    KucniBroj = table.Column<string>(nullable: true),
+                    KucniBroj = table.Column<string>(nullable: false),
                     UlazIliStan = table.Column<string>(nullable: true),
                     AdresaZaPrikaz = table.Column<string>(nullable: true),
-                    KontaktTelefon = table.Column<string>(nullable: true),
-                    TimestampKreiranja = table.Column<DateTime>(nullable: false),
+                    KontaktTelefon = table.Column<string>(nullable: false),
                     DatumSlanja = table.Column<DateTime>(nullable: false),
+                    DatumKreiranja = table.Column<DateTime>(nullable: false, defaultValueSql: "getdate()"),
                     Otkup = table.Column<int>(nullable: false),
                     IdVrsteRobe = table.Column<int>(nullable: false),
                     ShipmentCategory = table.Column<int>(nullable: false),
                     IdNalogaSaKogSeSalje = table.Column<int>(nullable: false),
-                    NalogSaKogSeSalje = table.Column<string>(nullable: true)
+                    NalogSaKogSeSalje = table.Column<string>(nullable: true),
+                    NapomenaZaAdresnicu = table.Column<string>(nullable: true),
+                    IdAdresnice = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {

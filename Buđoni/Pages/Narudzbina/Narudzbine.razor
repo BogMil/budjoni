@@ -1,81 +1,382 @@
 ﻿@page "/narudzbine"
+@using System.Globalization
+@using System.IO
 @using Budjoni.DAL
 @using Budjoni.DAL.Models
 @using Budjoni.Services
 @inject IJSRuntime JsRuntime
 @inject ApplicationDbContext Db
 @inject BexAddressService BexAddressService
-
-<h6>
-    Narudžbine <button>
-        <NavLink class="nav-link" href="narudzbina/create">
-            <span class="oi oi-plus" aria-hidden="true"></span>
-        </NavLink>
-    </button>
-</h6>
-
-
+@inject NavigationManager NavigationManager
+@using iTextSharp.text;
+@using iTextSharp.text.pdf;
 
 @if (narudzbine == null)
 {
-<p><em>Loading...</em></p> }
+    <p><em>Loading...</em></p> }
 else
 {
-
+    <MatButton OnClick="@(()=>NavigationManager.NavigateTo("narudzbina/create"))">
+        <span class="oi oi-plus" aria-hidden="true"></span> &nbsp;Dodaj narudzbinu
+    </MatButton>
+    <MatDatePicker Label="DatumSlanja" Format="dd-MM-yyyy" AllowInput="false" @bind-Value="DatumSlanja" />
+    <MatButton OnClick="@(_ => {DatumSlanja = null; })">
+        <span class="oi oi-x" aria-hidden="true"></span>
+    </MatButton>
+    @if (DatumSlanja != null)
+    {
+        <MatButton OnClick="OpenIzborNarudzbineZaAdresniceDialog">
+            <span class="oi oi-print" aria-hidden="true"></span>&nbsp;Kreiraj adresnice
+        </MatButton>
+        <MatButton>
+            <span class="oi oi-print" aria-hidden="true"></span>&nbsp;Kreiraj papirice
+        </MatButton>
+    }
     @foreach (var narudzbina in narudzbine)
     {
-        <MatCard class="demo-mat-card">
+        var className = @narudzbina.DetaljiNarudzbine.Count == 0 ? "narudzbina-bez-detalja" : "";
+
+        <MatCard style="border-style: solid; border-color: rgb(98, 0, 238); border-width: 2px; " class="@className">
             <MatCardContent>
-                <div class="demo-mat-card-content">
-                    <MatSubtitle2 class="demo-mat-card-clean-margin">
-                        <div class="mat-layout-grid" style="padding:2px 10px ">
+                <div>
+
+                    <div class="mat-layout-grid" style="padding:2px 10px ">
+                        <MatSubtitle2>
                             <div class="mat-layout-grid-inner">
                                 <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">@narudzbina.Prezime @narudzbina.Ime - @narudzbina.KontaktTelefon</div>
                                 <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">@narudzbina.AdresaZaPrikaz</div>
-                                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4" style="text-align: right"><div><b>SLANJE : </b>@narudzbina.DatumSlanja.ToString("dd-MM-yyyy")</div></div>
+                                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4" style="text-align: right">
+                                    <b>SLANJE : </b>@narudzbina.DatumSlanja?.ToString("dd-MM-yyyy")
+                                    <button><span class="oi oi-pencil" aria-hidden="true" /></button>
+                                    <button @onclick="()=>IzbrisiNarudzbinu(narudzbina.Id)" style="color:red">x</button>
+                                </div>
+                            </div>
+                        </MatSubtitle2>
+
+                        <div class="mat-layout-grid-inner">
+                            @foreach (var detaljNarudzbine in narudzbina.DetaljiNarudzbine)
+                            {
+                                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4" style="border-style: solid; border-color: rgb(98, 0, 238); border-width: 1px">
+                                    <div class="mat-layout-grid-inner">
+                                        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                                            <div>@detaljNarudzbine.VelicinaModela.BojaModela.Model.NazivModela - @detaljNarudzbine.VelicinaModela.BojaModela.Model.Sifra -@detaljNarudzbine.VelicinaModela.BojaModela.NazivBoje</div>
+                                        </div>
+                                        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
+                                            <img src="@detaljNarudzbine.VelicinaModela.BojaModela.GetImageSrc()" style="width: 100px" />
+                                        </div>
+                                        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
+                                            <div>
+                                                VEL:@detaljNarudzbine.VelicinaModela.Velicina
+                                            </div>
+                                            <div>
+                                                KOL:@detaljNarudzbine.Kolicina
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <div class="mat-layout-grid-inner">
+                            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
+                            </div>
+                            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
+                            </div>
+                            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
+                                broj adresnice : @narudzbina.NapomenaZaAdresnicu
                             </div>
                         </div>
+                    </div>
 
 
-                    </MatSubtitle2>
                 </div>
-                <MatBody2 class="demo-mat-card-content demo-mat-card-clean-margin">
-                    Visit ten places on our planet that are undergoing the biggest changes today.
-                </MatBody2>
             </MatCardContent>
         </MatCard>
     }
 }
-@code { 
+
+<MatDialog @bind-IsOpen="@izborNarudzbineZaAdresniceDialogIsOpen" CanBeClosed="false">
+    <MatDialogContent>
+        @foreach (var narudzbina in @NarudzbineZaAdresnice)
+        {
+            <MatCard style="border-style: solid; border-color: rgb(98, 0, 238); border-width: 2px; ">
+                <MatCardContent>
+                    <div>
+
+                        <div class="mat-layout-grid" style="padding:2px 10px ">
+                            <MatSubtitle2>
+                                <div class="mat-layout-grid-inner">
+                                    <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">@narudzbina.Prezime @narudzbina.Ime - @narudzbina.KontaktTelefon</div>
+                                    <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">@narudzbina.AdresaZaPrikaz</div>
+                                    <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4" style="text-align: right">
+                                        <b>SLANJE : </b>@narudzbina.DatumSlanja?.ToString("dd-MM-yyyy")
+                                    </div>
+                                </div>
+                            </MatSubtitle2>
+
+                            <div class="mat-layout-grid-inner">
+                                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Model</th>
+                                                <th>velicina</th>
+                                                <th>Kolicina</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var detaljNarudzbine in narudzbina.DetaljiNarudzbine)
+                                            {
+                                                <tr>
+                                                    <td style="padding: 0; text-align: center">
+                                                        @detaljNarudzbine.VelicinaModela.BojaModela.Model.NazivModela
+                                                        - @detaljNarudzbine.VelicinaModela.BojaModela.NazivBoje
+                                                    </td>
+                                                    <td style="padding:0; text-align: center">@detaljNarudzbine.VelicinaModela.Velicina</td>
+                                                    <td style="padding:0">
+                                                        @detaljNarudzbine.VelicinaModela.Velicina
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="mat-layout-grid-inner">
+                                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
+                                </div>
+                                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
+                                </div>
+                                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
+                                    broj adresnice : @narudzbina.NapomenaZaAdresnicu
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </MatCardContent>
+            </MatCard>
+        }
+    </MatDialogContent>
+    <MatDialogActions>
+        <a href="data:image/gif;base64,@pdfBase64">pdf</a>
+        <MatButton OnClick="@(e => { izborNarudzbineZaAdresniceDialogIsOpen = false; })">Odustani</MatButton>
+        <MatButton OnClick="CreatePdf">OK</MatButton>
+    </MatDialogActions>
+</MatDialog>
+
+<style>
+    .narudzbina-bez-detalja {
+        background-color: red;
+    }
+</style>
+@code {
     private List<Narudzbina> narudzbine;
+    private DateTime? _datumSlanja;
+    private DateTime? DatumSlanja
+    {
+        get => _datumSlanja;
+        set
+        {
+            _datumSlanja = value;
+            OnDatumSlanjaChange();
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
         await Task.Run(() =>
         {
-            //narudzbine = Db.Naruzbine.ToList();
-            narudzbine=new List<Narudzbina>(){new Narudzbina()
-            {
-                KucniBroj = "34",
-                DatumSlanja = DateTime.Now,
-                Prezime = "neko ime",
-                Ime = "neko prezime",
-                KontaktTelefon = "0651164545"
-                
-            }};
+            narudzbine = Db.Naruzbine.OrderByDescending(x => x.DatumKreiranja).ToList();
         });
     }
 
-    async void IzbrisiModel(int id)
+    async void IzbrisiNarudzbinu(int id)
     {
-        //bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Miro, da li si sigurna da hoces da obrises budjonija?");
+        bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Brisanjem narudzbine se NE AZURIRA kolicina obuce na stanju. Izbrisi prvo stavke iz narudzbine pa onda narudzbinu!");
 
-        //if (!confirmed)
-        //    return;
+        if (!confirmed)
+            return;
 
-        //var modelObuce = Db.ModeliObuce.Find(id);
-        //Db.ModeliObuce.Remove(modelObuce);
-        //Db.SaveChanges();
-        //narudzbine = Db.ModeliObuce.ToList();
+        var modelObuce = Db.Naruzbine.Find(id);
+        Db.Naruzbine.Remove(modelObuce);
+        Db.SaveChanges();
+        narudzbine = Db.Naruzbine.OrderByDescending(x => x.DatumKreiranja).ToList();
+        StateHasChanged();
+    }
+
+    void OnDatumSlanjaChange()
+    {
+        if (DatumSlanja == null)
+        {
+            narudzbine = Db.Naruzbine.OrderByDescending(x => x.DatumKreiranja).ToList();
+        }
+        else
+        {
+            narudzbine = Db.Naruzbine
+                .Where(x => x.DatumSlanja == ((DateTime)DatumSlanja).ToLocalTime())
+                .OrderByDescending(x => x.DatumKreiranja).ToList();
+        }
+    }
+
+    /// <summary>
+    /// //////////////////////////////////////
+    /// </summary>
+
+    private bool izborNarudzbineZaAdresniceDialogIsOpen = false;
+    public List<Narudzbina> NarudzbineZaAdresnice = new List<Narudzbina>();
+
+    void OpenIzborNarudzbineZaAdresniceDialog()
+    {
+        izborNarudzbineZaAdresniceDialogIsOpen = true;
+        NarudzbineZaAdresnice = narudzbine = Db.Naruzbine
+            .Where(x => x.DatumSlanja == ((DateTime)DatumSlanja).ToLocalTime())
+            .Where(x => x.KreiranaAdresnica == false)
+            .OrderByDescending(x => x.DatumKreiranja).ToList();
+        StateHasChanged();
+    }
+
+    string pdfBase64=null;
+    public void CreatePdf()
+    {
+        using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+        {
+            //creating a sample Document
+            iTextSharp.text.Document doc = new iTextSharp.text.Document(iTextSharp.text.PageSize.A4, 30f, 30f, 30f, 30f);
+            iTextSharp.text.pdf.PdfWriter writer = iTextSharp.text.pdf.PdfWriter.GetInstance(doc, ms);
+            doc.Open();
+            doc.Add(new iTextSharp.text.Chunk("hello world"));
+            doc.Close();
+            byte[] result = ms.ToArray();
+
+            pdfBase64 = Convert.ToBase64String(result);
+            StateHasChanged();
+        }
+        //using var output = new MemoryStream();
+        //Document doc = new Document(PageSize.A4);
+
+        //var writer = PdfWriter.GetInstance(doc, output);
+
+        //doc.Open();
+
+        //PdfPTable table1 = new PdfPTable(2);
+        //table1.DefaultCell.Border = 0;
+        //table1.WidthPercentage = 80;
+
+        //var titleFont = new Font(Font.FontFamily.UNDEFINED, 24);
+        //var subTitleFont = new Font(Font.FontFamily.UNDEFINED, 16);
+
+        //PdfPCell cell11 = new PdfPCell();
+        //cell11.Colspan = 1;
+        //cell11.AddElement(new Paragraph("ABC Traders Receipt", titleFont));
+
+        //cell11.AddElement(new Paragraph("Thankyou for shoping at ABC traders,your order details are below", subTitleFont));
+
+
+        //cell11.VerticalAlignment = Element.ALIGN_LEFT;
+
+        //PdfPCell cell12 = new PdfPCell();
+
+
+        //cell12.VerticalAlignment = Element.ALIGN_CENTER;
+
+
+        //table1.AddCell(cell11);
+
+        //table1.AddCell(cell12);
+
+
+        //PdfPTable table2 = new PdfPTable(3);
+
+        ////One row added
+
+        //PdfPCell cell21 = new PdfPCell();
+
+        //cell21.AddElement(new Paragraph("Photo Type"));
+
+        //PdfPCell cell22 = new PdfPCell();
+
+        //cell22.AddElement(new Paragraph("No. of Copies"));
+
+        //PdfPCell cell23 = new PdfPCell();
+
+        //cell23.AddElement(new Paragraph("Amount"));
+
+
+        //table2.AddCell(cell21);
+
+        //table2.AddCell(cell22);
+
+        //table2.AddCell(cell23);
+
+
+        ////New Row Added
+
+        //PdfPCell cell31 = new PdfPCell();
+
+        //cell31.AddElement(new Paragraph("Safe"));
+
+        //cell31.FixedHeight = 300.0f;
+
+        //PdfPCell cell32 = new PdfPCell();
+
+        //cell32.AddElement(new Paragraph("2"));
+
+        //cell32.FixedHeight = 300.0f;
+
+        //PdfPCell cell33 = new PdfPCell();
+
+        //cell33.AddElement(new Paragraph("20.00 * " + "2" + " = " + (20 * Convert.ToInt32("2")) + ".00"));
+
+        //cell33.FixedHeight = 300.0f;
+
+
+
+        //table2.AddCell(cell31);
+
+        //table2.AddCell(cell32);
+
+        //table2.AddCell(cell33);
+
+
+        //PdfPCell cell2A = new PdfPCell(table2);
+
+        //cell2A.Colspan = 2;
+
+        //table1.AddCell(cell2A);
+
+        //PdfPCell cell41 = new PdfPCell();
+
+        //cell41.AddElement(new Paragraph("Name : " + "ABC"));
+
+        //cell41.AddElement(new Paragraph("Advance : " + "advance"));
+
+        //cell41.VerticalAlignment = Element.ALIGN_LEFT;
+
+        //PdfPCell cell42 = new PdfPCell();
+
+        //cell42.AddElement(new Paragraph("Customer ID : " + "011"));
+
+        //cell42.AddElement(new Paragraph("Balance : " + "3993"));
+
+        //cell42.VerticalAlignment = Element.ALIGN_RIGHT;
+
+
+        //table1.AddCell(cell41);
+
+        //table1.AddCell(cell42);
+
+
+        //doc.Add(table1);
+
+        //StreamReader reader = new StreamReader(output);
+        //string text = reader.ReadToEnd();
+        //pdfBase64 = text;
         //StateHasChanged();
-    } }
+
+        //doc.Close();
+
+
+
+    }
+}
